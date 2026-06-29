@@ -17,8 +17,7 @@ Future<void> main() async {
   await initializeDateFormatting('es');
   await Supabase.initialize(
     url: Env.supabaseUrl,
-    // ignore: deprecated_member_use
-    anonKey: Env.supabaseAnonKey,
+    publishableKey: Env.supabasePublishableKey,
   );
   runApp(const ProviderScope(child: MainApp()));
 }
