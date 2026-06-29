@@ -2,7 +2,7 @@ import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/helpers/date_format.dart';
 import 'package:eventix/core/helpers/money_format.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
-import 'package:eventix/features/events/presentation/widgets/category_visuals.dart';
+import 'package:eventix/features/events/presentation/widgets/event_image.dart';
 import 'package:flutter/material.dart';
 
 class EventCard extends StatelessWidget {
@@ -13,7 +13,6 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CategoryVisual visual = categoryVisual(event.categoryName);
     return Card(
       margin: const EdgeInsets.only(bottom: UiSpacing.md),
       clipBehavior: Clip.antiAlias,
@@ -22,7 +21,7 @@ class EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            _Header(event: event, visual: visual),
+            _Header(event: event),
             Padding(
               padding: const EdgeInsets.all(UiSpacing.md),
               child: Column(
@@ -57,41 +56,30 @@ class EventCard extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.event, required this.visual});
+  const _Header({required this.event});
 
   final Event event;
-  final CategoryVisual visual;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 120,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: visual.colors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    return Stack(
+      children: <Widget>[
+        EventImage(
+          imageKey: event.imageKey,
+          categoryName: event.categoryName,
+          height: 120,
         ),
-        child: Stack(
-          children: <Widget>[
-            Center(
-              child: Icon(visual.icon, size: 56, color: Colors.white),
-            ),
-            Positioned(
-              top: UiSpacing.sm,
-              left: UiSpacing.sm,
-              child: _Pill(text: event.categoryName),
-            ),
-            Positioned(
-              top: UiSpacing.sm,
-              right: UiSpacing.sm,
-              child: _Pill(text: formatPrice(event.price)),
-            ),
-          ],
+        Positioned(
+          top: UiSpacing.sm,
+          left: UiSpacing.sm,
+          child: _Pill(text: event.categoryName),
         ),
-      ),
+        Positioned(
+          top: UiSpacing.sm,
+          right: UiSpacing.sm,
+          child: _Pill(text: formatPrice(event.price)),
+        ),
+      ],
     );
   }
 }

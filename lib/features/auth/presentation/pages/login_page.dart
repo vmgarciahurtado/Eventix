@@ -3,6 +3,7 @@ import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/helpers/form_validators.dart';
 import 'package:eventix/core/helpers/result.dart';
+import 'package:eventix/core/widgets/app_logo.dart';
 import 'package:eventix/features/auth/domain/entities/app_user.dart';
 import 'package:eventix/features/auth/presentation/pages/register_page.dart';
 import 'package:eventix/features/auth/presentation/pages/reset_password_request_page.dart';
@@ -80,11 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Icon(
-                    Icons.confirmation_num_rounded,
-                    size: 64,
-                    color: context.colorScheme.primary,
-                  ),
+                  const AppLogo(size: 72),
                   const SizedBox(height: UiSpacing.md),
                   Text(
                     'Bienvenido a Eventix',

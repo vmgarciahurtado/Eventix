@@ -1,5 +1,6 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/helpers/result.dart';
+import 'package:eventix/core/widgets/app_logo.dart';
 import 'package:eventix/features/auth/domain/entities/app_user.dart';
 import 'package:eventix/features/auth/presentation/pages/login_page.dart';
 import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
@@ -52,18 +53,14 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Icon(
-              Icons.confirmation_num_rounded,
-              size: 72,
-              color: context.colorScheme.primary,
-            ),
-            const SizedBox(height: UiSpacing.lg),
-            const UiLoader(),
+            AppLogo(size: 96),
+            SizedBox(height: UiSpacing.lg),
+            UiLoader(),
           ],
         ),
       ),

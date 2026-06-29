@@ -4,7 +4,7 @@ import 'package:eventix/core/helpers/money_format.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/providers/events_providers.dart';
-import 'package:eventix/features/events/presentation/widgets/category_visuals.dart';
+import 'package:eventix/features/events/presentation/widgets/event_image.dart';
 import 'package:eventix/features/reservations/presentation/pages/reserve_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,7 +45,6 @@ class _DetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CategoryVisual visual = categoryVisual(event.categoryName);
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -53,17 +52,11 @@ class _DetailContent extends StatelessWidget {
             expandedHeight: 200,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: visual.colors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Center(
-                  child: Icon(visual.icon, size: 96, color: Colors.white),
-                ),
+              background: EventImage(
+                imageKey: event.imageKey,
+                categoryName: event.categoryName,
+                height: 200,
+                iconSize: 96,
               ),
             ),
           ),
