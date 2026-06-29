@@ -1,13 +1,14 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/helpers/date_format.dart';
 import 'package:eventix/core/helpers/money_format.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/providers/events_providers.dart';
 import 'package:eventix/features/events/presentation/widgets/category_visuals.dart';
+import 'package:eventix/features/reservations/presentation/pages/reserve_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class EventDetailPage extends ConsumerWidget {
   static const String routePath = '/event/:id';
@@ -129,8 +130,7 @@ class _DetailContent extends StatelessWidget {
           child: UiButton(
             label: 'Reservar',
             expanded: true,
-            onPressed: () =>
-                context.showSnack('Reservas disponibles muy pronto'),
+            onPressed: () => context.push(ReservePage.location(event.id)),
           ),
         ),
       ),

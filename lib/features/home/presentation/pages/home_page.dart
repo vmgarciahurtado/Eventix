@@ -6,6 +6,7 @@ import 'package:eventix/features/events/presentation/pages/event_detail_page.dar
 import 'package:eventix/features/events/presentation/providers/events_providers.dart';
 import 'package:eventix/features/events/presentation/widgets/event_card.dart';
 import 'package:eventix/features/events/presentation/widgets/event_filter_bar.dart';
+import 'package:eventix/features/reservations/presentation/pages/my_reservations_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,6 +25,11 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Eventix'),
         actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.confirmation_num_outlined),
+            tooltip: 'Mis reservas',
+            onPressed: () => context.push(MyReservationsPage.routePath),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Actualizar',

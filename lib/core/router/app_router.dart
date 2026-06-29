@@ -33,5 +33,6 @@ final GoRouter appRouter = GoRouter(
     homeRoute,
     ...authRoutes,
     ...eventsRoutes,
+    ...reservationsRoutes,
   ],
 );
