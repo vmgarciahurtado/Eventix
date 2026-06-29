@@ -2,6 +2,7 @@
 export 'package:eventix/features/auth/presentation/pages/login_page.dart';
 export 'package:eventix/features/auth/presentation/pages/register_page.dart';
 export 'package:eventix/features/auth/routes/auth_routes.dart';
+export 'package:eventix/features/events/routes/events_routes.dart';
 export 'package:eventix/features/home/presentation/pages/home_page.dart';
 export 'package:eventix/features/home/routes/home_route.dart';
 export 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';

@@ -37,7 +37,7 @@ void main() {
       expect(result, isA<Success<void>>());
     });
 
-    test('returns FailureResult when the datasource throws a Failure', () async {
+    test('returns FailureResult when datasource throws', () async {
       when(
         () => datasource.signIn(
           email: any(named: 'email'),

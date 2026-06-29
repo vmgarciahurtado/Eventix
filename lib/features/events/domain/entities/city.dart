@@ -1,0 +1,7 @@
+/// Ciudad donde ocurre un evento.
+class City {
+  const City({required this.id, required this.name});
+
+  final int id;
+  final String name;
+}

@@ -8,6 +8,16 @@ import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.d
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Rutas accesibles sin sesión activa (usadas por el guard del router).
+const Set<String> publicAuthRoutes = <String>{
+  LoginPage.routePath,
+  RegisterPage.routePath,
+  VerifyCodePage.routePath,
+  ResetPasswordRequestPage.routePath,
+  NewPasswordPage.routePath,
+  AuthSuccessPage.routePath,
+};
+
 final List<RouteBase> authRoutes = <RouteBase>[
   GoRoute(
     path: LoginPage.routePath,

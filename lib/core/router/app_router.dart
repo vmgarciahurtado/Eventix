@@ -4,12 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Rutas que requieren sesión activa.
-const Set<String> _privateRoutes = <String>{
-  HomePage.routePath,
-  OnboardingPage.routePath,
-};
-
 final GoRouter appRouter = GoRouter(
   initialLocation: SplashPage.routePath,
   refreshListenable: GoRouterRefreshStream(
@@ -20,16 +14,24 @@ final GoRouter appRouter = GoRouter(
         Supabase.instance.client.auth.currentSession != null;
     final String loc = state.matchedLocation;
 
-    // Sin sesión no se puede entrar a rutas privadas.
-    if (!loggedIn && _privateRoutes.contains(loc)) {
-      return LoginPage.routePath;
-    }
-    // Con sesión, no tiene sentido ver login/registro.
+    // El splash siempre es accesible: decide la ruta inicial.
+    final bool isPublic =
+        loc == SplashPage.routePath || publicAuthRoutes.contains(loc);
+
+    // Sin sesión solo se permiten rutas públicas.
+    if (!loggedIn && !isPublic) return LoginPage.routePath;
+
+    // Con sesión, login/registro no tienen sentido.
     if (loggedIn &&
         (loc == LoginPage.routePath || loc == RegisterPage.routePath)) {
       return HomePage.routePath;
     }
     return null;
   },
-  routes: <RouteBase>[splashRoute, homeRoute, ...authRoutes],
+  routes: <RouteBase>[
+    splashRoute,
+    homeRoute,
+    ...authRoutes,
+    ...eventsRoutes,
+  ],
 );
