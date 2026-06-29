@@ -1,11 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:app_ui_kit/app_ui_kit.dart';
+import 'package:eventix/core/constants/fonts.dart';
+import 'package:eventix/core/env/env.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/core/router/app_router.dart';
-import 'package:eventix/core/theme/theme.dart';
+import 'package:eventix/core/theme/app_palette.dart';
 import 'package:eventix/core/theme/theme_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
+  await Supabase.initialize(
+    url: Env.supabaseUrl,
+    // ignore: deprecated_member_use
+    anonKey: Env.supabaseAnonKey,
+  );
   runApp(const ProviderScope(child: MainApp()));
 }
 
@@ -18,11 +30,21 @@ class MainApp extends ConsumerWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
+      onGenerateTitle: (BuildContext context) =>
+          AppLocalizations.of(context).app_name,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      title: AppLocalizations.of(context).app_name,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
+      locale: const Locale('es'),
+      theme: UiKitTheme.light(
+        primary: AppPalette.primary,
+        secondary: AppPalette.secondary,
+        fontFamily: Fonts.poppins,
+      ),
+      darkTheme: UiKitTheme.dark(
+        primary: AppPalette.primary,
+        secondary: AppPalette.secondary,
+        fontFamily: Fonts.poppins,
+      ),
       themeMode: themeMode,
       routerConfig: appRouter,
     );

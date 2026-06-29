@@ -1,5 +1,5 @@
+import 'package:eventix/features/home/presentation/pages/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:eventix/features/example/presentation/pages/examples_page.dart';
 import 'package:go_router/go_router.dart';
 
 class SplashPage extends StatefulWidget {
@@ -13,15 +13,11 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   @override
-  @override
   void initState() {
     super.initState();
-    Future<void>.delayed(
-      const Duration(seconds: 2),
-      () {
-        if (mounted) context.go(ExamplesPage.routePath);
-      },
-    );
+    Future<void>.delayed(const Duration(seconds: 2), () {
+      if (mounted) context.go(HomePage.routePath);
+    });
   }
 
   @override

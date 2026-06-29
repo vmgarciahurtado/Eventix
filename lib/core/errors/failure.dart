@@ -33,6 +33,22 @@ class UnauthorizedFailure extends Failure {
   String get userMessage => message;
 }
 
+/// Error de autenticación con mensaje amigable (credenciales, OTP, etc.).
+class AuthFailure extends Failure {
+  final String message;
+  const AuthFailure([this.message = 'No fue posible completar la operación']);
+  @override
+  String get userMessage => message;
+}
+
+/// Error de validación de datos enviados (entrada inválida, conflicto, etc.).
+class ValidationFailure extends Failure {
+  final String message;
+  const ValidationFailure([this.message = 'Datos inválidos']);
+  @override
+  String get userMessage => message;
+}
+
 class UnexpectedFailure extends Failure {
   final String message;
   const UnexpectedFailure([this.message = 'Error inesperado']);

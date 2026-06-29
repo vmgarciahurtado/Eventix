@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:eventix/core/constants/breakpoints.dart';
+import 'package:flutter/material.dart';
 
 /// Extension on [BuildContext] that provides utilities for responsive design.
 ///
