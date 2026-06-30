@@ -32,11 +32,14 @@ class VerifyCodePage extends ConsumerStatefulWidget {
 }
 
 class _VerifyCodePageState extends ConsumerState<VerifyCodePage> {
+  /// Longitud del OTP que envía Supabase (Auth → Email OTP Length).
+  static const int _otpLength = 8;
+
   bool _loading = false;
   String _code = '';
 
   Future<void> _verify() async {
-    if (_code.length < 6) {
+    if (_code.length < _otpLength) {
       context.showSnack('Ingresa el código completo');
       return;
     }
@@ -106,6 +109,7 @@ class _VerifyCodePageState extends ConsumerState<VerifyCodePage> {
               ),
               const SizedBox(height: UiSpacing.xl),
               UiOtpField(
+                length: _otpLength,
                 onChanged: (String code) => _code = code,
                 onCompleted: (String code) {
                   _code = code;

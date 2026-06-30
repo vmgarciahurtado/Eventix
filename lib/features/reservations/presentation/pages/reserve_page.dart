@@ -7,6 +7,9 @@ import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/providers/events_providers.dart';
+import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
+import 'package:eventix/features/payments/presentation/pages/checkout_web_view_page.dart';
+import 'package:eventix/features/payments/presentation/providers/payments_providers.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
 import 'package:eventix/features/reservations/presentation/pages/my_reservations_page.dart';
 import 'package:eventix/features/reservations/presentation/providers/reservations_providers.dart';
@@ -30,22 +33,95 @@ class ReservePage extends ConsumerStatefulWidget {
 class _ReservePageState extends ConsumerState<ReservePage> {
   int _quantity = 1;
   bool _loading = false;
+  bool _wantInvoice = true;
 
   int _maxQuantity(Event event) {
     final int cap = event.capacity < 1 ? 1 : event.capacity;
     return cap < 10 ? cap : 10;
   }
 
-  Future<void> _simulatePurchase(Event event) async {
+  Future<void> _startPurchase(Event event) async {
+    final double total = event.price * _quantity;
+
+    // Eventos gratuitos: no pasan por Stripe, se reservan directo.
+    if (total <= 0) {
+      final bool? confirmed = await UiConfirmDialog.show(
+        context,
+        title: 'Reservar',
+        message:
+            'Vas a reservar $_quantity cupo(s) para "${event.title}". '
+            'Este evento es gratuito. ¿Confirmar?',
+      );
+      if (confirmed != true) return;
+      await _confirmReservation();
+      return;
+    }
+
     final bool? confirmed = await UiConfirmDialog.show(
       context,
-      title: 'Simular compra',
+      title: 'Pagar con Stripe',
       message:
-          'Vas a reservar $_quantity cupo(s) para "${event.title}" por '
-          '${formatPrice(event.price * _quantity)}. ¿Confirmar?',
+          'Vas a pagar ${formatPrice(total)} por $_quantity cupo(s) para '
+          '"${event.title}".',
     );
     if (confirmed != true) return;
 
+    setState(() => _loading = true);
+    final Result<CheckoutSession> result = await ref
+        .read(createCheckoutSessionProvider)
+        .call(
+          eventId: widget.eventId,
+          quantity: _quantity,
+          wantInvoice: _wantInvoice,
+        );
+    if (!mounted) return;
+    setState(() => _loading = false);
+
+    switch (result) {
+      case Success<CheckoutSession>(data: final CheckoutSession session):
+        await _payInWebView(session);
+      case FailureResult<CheckoutSession>(failure: final Failure failure):
+        context.showSnack(failure.userMessage);
+    }
+  }
+
+  Future<void> _payInWebView(CheckoutSession session) async {
+    final String? status = await Navigator.of(context).push<String>(
+      MaterialPageRoute<String>(
+        builder: (_) => CheckoutWebViewPage(url: session.url),
+      ),
+    );
+    if (!mounted) return;
+
+    if (status == 'success') {
+      await _verifyAndFinish(session.sessionId);
+    } else {
+      context.showSnack('Pago cancelado.');
+    }
+  }
+
+  Future<void> _verifyAndFinish(String sessionId) async {
+    setState(() => _loading = true);
+    final Result<bool> result = await ref
+        .read(verifyCheckoutSessionProvider)
+        .call(sessionId: sessionId);
+    if (!mounted) return;
+
+    switch (result) {
+      case Success<bool>(data: final bool paid):
+        if (paid) {
+          await _confirmReservation();
+        } else {
+          setState(() => _loading = false);
+          context.showSnack('No pudimos confirmar el pago. Intenta de nuevo.');
+        }
+      case FailureResult<bool>(failure: final Failure failure):
+        setState(() => _loading = false);
+        context.showSnack(failure.userMessage);
+    }
+  }
+
+  Future<void> _confirmReservation() async {
     setState(() => _loading = true);
     final Result<Reservation> result = await ref
         .read(createReservationProvider)
@@ -84,8 +160,9 @@ class _ReservePageState extends ConsumerState<ReservePage> {
   Widget _body(Event event) {
     final double total = event.price * _quantity;
     final int max = _maxQuantity(event);
+    final bool isFree = total <= 0;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(UiSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,7 +200,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
               children: <Widget>[
                 Text('Precio unitario', style: context.textTheme.bodyLarge),
                 Text(
-                  formatPrice(event.price),
+                  isFree ? 'Gratis' : formatPrice(event.price),
                   style: context.textTheme.bodyLarge,
                 ),
               ],
@@ -139,7 +216,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
                   ),
                 ),
                 Text(
-                  formatPrice(total),
+                  isFree ? 'Gratis' : formatPrice(total),
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: context.colorScheme.primary,
@@ -147,12 +224,24 @@ class _ReservePageState extends ConsumerState<ReservePage> {
                 ),
               ],
             ),
-            const Spacer(),
+            if (!isFree) ...<Widget>[
+              const SizedBox(height: UiSpacing.lg),
+              UiCheckOption(
+                value: _wantInvoice,
+                onChanged: _loading
+                    ? (_) {}
+                    : (bool v) => setState(() => _wantInvoice = v),
+                label: 'Enviar la factura a mi correo',
+              ),
+            ],
+            const SizedBox(height: UiSpacing.xl),
             UiButton(
-              label: 'Simular compra',
+              label: isFree
+                  ? 'Reservar gratis'
+                  : 'Pagar ${formatPrice(total)}',
               expanded: true,
               loading: _loading,
-              onPressed: () => _simulatePurchase(event),
+              onPressed: () => _startPurchase(event),
             ),
           ],
         ),

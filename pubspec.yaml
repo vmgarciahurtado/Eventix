@@ -17,6 +17,7 @@ dependencies:
   lottie: ^3.3.3
   flutter_dotenv: ^6.0.1
   supabase_flutter: ^2.8.0
+  webview_flutter: ^4.7.0
   app_ui_kit:
     path: ../app_ui_kit
 

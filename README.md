@@ -1,3 +1,3 @@
-# flutter_base_project
+# Eventix
 
-A new Flutter project.
+App Flutter de eventos: descubre, filtra, reserva y simula la compra de entradas. Backend en Supabase.

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.flutter_base_project"
+    namespace = "com.eventix"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
