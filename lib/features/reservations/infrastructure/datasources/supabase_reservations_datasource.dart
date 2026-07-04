@@ -1,4 +1,4 @@
-import 'package:eventix/core/errors/map_supabase_error.dart';
+import 'package:eventix/core/errors/supabase_guard.dart';
 import 'package:eventix/features/reservations/infrastructure/datasources/reservations_datasource.dart';
 import 'package:eventix/features/reservations/infrastructure/models/remote_reservation_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,24 +10,18 @@ class SupabaseReservationsDatasource implements ReservationsDatasource {
 
   static const String _select = '*, events(title, starts_at)';
 
-  Future<T> _guard<T>(Future<T> Function() fn) async {
-    try {
-      return await fn();
-    } catch (e) {
-      throw mapSupabaseError(e);
-    }
-  }
-
   @override
   Future<RemoteReservationModel> createReservation({
     required String eventId,
     required int quantity,
-  }) => _guard(() async {
+    required String status,
+  }) => guardSupabaseCall(() async {
     final Map<String, dynamic> row = await _client
         .from('reservations')
         .insert(<String, dynamic>{
           'event_id': eventId,
           'quantity': quantity,
+          'status': status,
         })
         .select(_select)
         .single();
@@ -35,8 +29,14 @@ class SupabaseReservationsDatasource implements ReservationsDatasource {
   });
 
   @override
+  Future<void> deletePendingReservation({required String id}) =>
+      guardSupabaseCall(
+        () => _client.from('reservations').delete().eq('id', id),
+      );
+
+  @override
   Future<List<RemoteReservationModel>> fetchMyReservations() =>
-      _guard(() async {
+      guardSupabaseCall(() async {
         final List<Map<String, dynamic>> rows = await _client
             .from('reservations')
             .select(_select)

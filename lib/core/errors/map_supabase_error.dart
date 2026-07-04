@@ -10,8 +10,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 Failure mapSupabaseError(Object error) {
   if (error is Failure) return error;
 
+  // Los errores de red del cliente de auth llegan envueltos en
+  // AuthRetryableFetchException (extiende AuthException), así que esta rama
+  // debe evaluarse ANTES que la de AuthException genérica.
+  if (error is AuthRetryableFetchException) {
+    return const ConnectionFailure();
+  }
+
   if (error is AuthException) {
     return AuthFailure(_translateAuthMessage(error.message));
+  }
+
+  if (error is FunctionException) {
+    return ServerFailure(_functionMessage(error));
   }
 
   if (error is PostgrestException) {
@@ -19,11 +30,19 @@ Failure mapSupabaseError(Object error) {
     if (code == 'PGRST116' || code == '404') {
       return const NotFoundFailure();
     }
+    if (code == 'PGRST301' || code == '42501') {
+      return const UnauthorizedFailure();
+    }
     if (code == '23505') {
       return const ValidationFailure('El registro ya existe.');
     }
     if (code == '23514' || code == '23503') {
       return const ValidationFailure('Operación no permitida.');
+    }
+    // P0001 = `raise exception` de los triggers/RPCs (p. ej. cupos
+    // insuficientes): es una regla de negocio, no un error del servidor.
+    if (code == 'P0001') {
+      return ValidationFailure(error.message);
     }
     return ServerFailure(error.message);
   }
@@ -37,6 +56,16 @@ Failure mapSupabaseError(Object error) {
   }
 
   return UnexpectedFailure(error.toString());
+}
+
+/// Las Edge Functions devuelven `{ "error": "..." }` en los fallos
+/// controlados; se usa ese mensaje si viene, o uno genérico si no.
+String _functionMessage(FunctionException e) {
+  final Object? details = e.details;
+  if (details is Map && details['error'] is String) {
+    return details['error'] as String;
+  }
+  return 'No se pudo completar la operación.';
 }
 
 String _translateAuthMessage(String raw) {

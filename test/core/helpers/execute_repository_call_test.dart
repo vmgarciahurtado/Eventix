@@ -103,7 +103,13 @@ void main() {
         expect(result, isA<FailureResult<int>>());
         final Failure failure = (result as FailureResult<int>).failure;
         expect(failure, isA<UnexpectedFailure>());
-        expect(failure.userMessage, contains('something went wrong'));
+        // El detalle técnico queda en message (para logs); la UI recibe un
+        // mensaje genérico.
+        expect(
+          (failure as UnexpectedFailure).message,
+          contains('something went wrong'),
+        );
+        expect(failure.userMessage, isNot(contains('something went wrong')));
       },
     );
   });

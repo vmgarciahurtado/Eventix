@@ -1,5 +1,5 @@
 import 'package:eventix/core/errors/failure.dart';
-import 'package:eventix/core/errors/map_supabase_error.dart';
+import 'package:eventix/core/errors/supabase_guard.dart';
 import 'package:eventix/features/events/domain/entities/event_filter.dart';
 import 'package:eventix/features/events/infrastructure/datasources/events_datasource.dart';
 import 'package:eventix/features/events/infrastructure/models/remote_category_model.dart';
@@ -15,19 +15,12 @@ class SupabaseEventsDatasource implements EventsDatasource {
   /// Incluye los nombres de categoría y ciudad mediante joins de Supabase.
   static const String _eventSelect = '*, categories(name), cities(name)';
 
-  Future<T> _guard<T>(Future<T> Function() fn) async {
-    try {
-      return await fn();
-    } catch (e) {
-      throw mapSupabaseError(e);
-    }
-  }
-
   @override
   Future<List<RemoteEventModel>> fetchEvents(EventFilter filter) =>
-      _guard(() async {
-        PostgrestFilterBuilder<List<Map<String, dynamic>>> query =
-            _client.from('events').select(_eventSelect);
+      guardSupabaseCall(() async {
+        PostgrestFilterBuilder<List<Map<String, dynamic>>> query = _client
+            .from('events')
+            .select(_eventSelect);
 
         final int? categoryId = filter.categoryId;
         final int? cityId = filter.cityId;
@@ -40,11 +33,13 @@ class SupabaseEventsDatasource implements EventsDatasource {
           query = query.eq('city_id', cityId);
         }
         if (date != null) {
+          // `starts_at` es timestamptz: la ventana del día local debe
+          // serializarse en UTC o Postgres la interpreta corrida de zona.
           final DateTime start = DateTime(date.year, date.month, date.day);
           final DateTime end = start.add(const Duration(days: 1));
           query = query
-              .gte('starts_at', start.toIso8601String())
-              .lt('starts_at', end.toIso8601String());
+              .gte('starts_at', start.toUtc().toIso8601String())
+              .lt('starts_at', end.toUtc().toIso8601String());
         }
 
         final List<Map<String, dynamic>> rows = await query.order('starts_at');
@@ -54,29 +49,42 @@ class SupabaseEventsDatasource implements EventsDatasource {
       });
 
   @override
-  Future<RemoteEventModel> fetchEventById(String id) => _guard(() async {
-    final Map<String, dynamic>? row = await _client
-        .from('events')
-        .select(_eventSelect)
-        .eq('id', id)
-        .maybeSingle();
-    if (row == null) throw const NotFoundFailure();
-    return RemoteEventModel.fromJson(row);
-  });
+  Future<RemoteEventModel> fetchEventById(String id) =>
+      guardSupabaseCall(() async {
+        final Map<String, dynamic>? row = await _client
+            .from('events')
+            .select(_eventSelect)
+            .eq('id', id)
+            .maybeSingle();
+        if (row == null) throw const NotFoundFailure();
+        return RemoteEventModel.fromJson(row);
+      });
 
   @override
-  Future<List<RemoteCategoryModel>> fetchCategories() => _guard(() async {
-    final List<Map<String, dynamic>> rows = await _client
-        .from('categories')
-        .select()
-        .order('name');
-    return rows
-        .map((Map<String, dynamic> e) => RemoteCategoryModel.fromJson(e))
-        .toList();
-  });
+  Future<List<RemoteCategoryModel>> fetchCategories() =>
+      guardSupabaseCall(() async {
+        final List<Map<String, dynamic>> rows = await _client
+            .from('categories')
+            .select()
+            .order('name');
+        return rows
+            .map((Map<String, dynamic> e) => RemoteCategoryModel.fromJson(e))
+            .toList();
+      });
 
   @override
-  Future<List<RemoteCityModel>> fetchCities() => _guard(() async {
+  Future<int> fetchAvailableSpots(String eventId) =>
+      guardSupabaseCall(() async {
+        final Map<String, dynamic> row = await _client
+            .from('event_availability')
+            .select('available')
+            .eq('event_id', eventId)
+            .single();
+        return (row['available'] as num).toInt();
+      });
+
+  @override
+  Future<List<RemoteCityModel>> fetchCities() => guardSupabaseCall(() async {
     final List<Map<String, dynamic>> rows = await _client
         .from('cities')
         .select()

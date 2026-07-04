@@ -53,7 +53,7 @@ void main() {
         'then returns the default unexpected message',
         () {
           const UnexpectedFailure failure = UnexpectedFailure();
-          expect(failure.userMessage, 'Error inesperado');
+          expect(failure.userMessage, 'Algo salió mal. Intenta de nuevo.');
         },
       );
     });
@@ -100,12 +100,13 @@ void main() {
       );
 
       test(
-        'given UnexpectedFailure with a custom message '
+        'given UnexpectedFailure with a technical message '
         'when userMessage is read '
-        'then returns the custom message',
+        'then hides the detail behind a generic message',
         () {
-          const UnexpectedFailure failure = UnexpectedFailure('custom');
-          expect(failure.userMessage, 'custom');
+          const UnexpectedFailure failure = UnexpectedFailure('boom');
+          expect(failure.message, 'boom');
+          expect(failure.userMessage, 'Algo salió mal. Intenta de nuevo.');
         },
       );
     });

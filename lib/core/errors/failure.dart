@@ -50,8 +50,9 @@ class ValidationFailure extends Failure {
 }
 
 class UnexpectedFailure extends Failure {
+  /// Detalle técnico para logs/debug; NUNCA se muestra al usuario.
   final String message;
   const UnexpectedFailure([this.message = 'Error inesperado']);
   @override
-  String get userMessage => message;
+  String get userMessage => 'Algo salió mal. Intenta de nuevo.';
 }
