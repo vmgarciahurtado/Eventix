@@ -13,13 +13,55 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
+  // El `.env` no se versiona (se comparte por canal privado). Si falta o está
+  // incompleto se muestra una pantalla de configuración en vez de crashear.
+  try {
+    await dotenv.load();
+  } catch (_) {
+    // Sin `.env`: Env devolverá valores vacíos y se mostrará _MissingEnvApp.
+  }
+  if (Env.supabaseUrl.isEmpty || Env.supabasePublishableKey.isEmpty) {
+    runApp(const _MissingEnvApp());
+    return;
+  }
   await initializeDateFormatting('es');
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
   );
   runApp(const ProviderScope(child: MainApp()));
+}
+
+/// Pantalla mínima cuando faltan las variables de entorno: explica cómo
+/// configurar el proyecto sin exponer ningún valor sensible.
+class _MissingEnvApp extends StatelessWidget {
+  const _MissingEnvApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: UiKitTheme.light(
+        primary: AppPalette.primary,
+        secondary: AppPalette.secondary,
+        fontFamily: Fonts.poppins,
+      ),
+      home: const Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(UiSpacing.lg),
+            child: Text(
+              'Falta configurar el archivo .env.\n\n'
+              'Copia .env.example como .env en la raíz del proyecto y usa '
+              'los valores compartidos por canal privado. Luego vuelve a '
+              'ejecutar la app.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class MainApp extends ConsumerWidget {

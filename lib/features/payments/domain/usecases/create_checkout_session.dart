@@ -8,12 +8,10 @@ class CreateCheckoutSession {
   final PaymentsRepository _repository;
 
   Future<Result<CheckoutSession>> call({
-    required String eventId,
-    required int quantity,
+    required String reservationId,
     required bool wantInvoice,
   }) => _repository.createCheckout(
-    eventId: eventId,
-    quantity: quantity,
+    reservationId: reservationId,
     wantInvoice: wantInvoice,
   );
 }

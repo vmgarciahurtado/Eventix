@@ -12,4 +12,7 @@ abstract interface class EventsRepository {
   Future<Result<List<Category>>> getCategories();
 
   Future<Result<List<City>>> getCities();
+
+  /// Cupos realmente disponibles (capacidad − reservas activas).
+  Future<Result<int>> getAvailableSpots(String eventId);
 }

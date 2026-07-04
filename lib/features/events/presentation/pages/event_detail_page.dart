@@ -32,19 +32,31 @@ class EventDetailPage extends ConsumerWidget {
             onRetry: () => ref.invalidate(eventByIdProvider(eventId)),
           ),
         ),
-        data: (Event event) => _DetailContent(event: event),
+        data: (Event event) => _DetailContent(
+          event: event,
+          available: ref.watch(eventAvailabilityProvider(eventId)),
+        ),
       ),
     );
   }
 }
 
 class _DetailContent extends StatelessWidget {
-  const _DetailContent({required this.event});
+  const _DetailContent({required this.event, required this.available});
 
   final Event event;
+  final AsyncValue<int> available;
+
+  String get _spotsLabel => available.when(
+    data: (int a) =>
+        a <= 0 ? 'Agotado' : '$a de ${event.capacity} cupos disponibles',
+    loading: () => '${event.capacity} cupos',
+    error: (_, _) => '${event.capacity} cupos',
+  );
 
   @override
   Widget build(BuildContext context) {
+    final bool soldOut = (available.value ?? 1) <= 0;
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -100,7 +112,7 @@ class _DetailContent extends StatelessWidget {
                   const SizedBox(height: UiSpacing.sm),
                   _InfoRow(
                     icon: Icons.people_outline,
-                    text: '${event.capacity} cupos',
+                    text: _spotsLabel,
                   ),
                   const SizedBox(height: UiSpacing.lg),
                   Text(
@@ -121,9 +133,11 @@ class _DetailContent extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(UiSpacing.lg),
           child: UiButton(
-            label: 'Reservar',
+            label: soldOut ? 'Agotado' : 'Reservar',
             expanded: true,
-            onPressed: () => context.push(ReservePage.location(event.id)),
+            onPressed: soldOut
+                ? null
+                : () => context.push(ReservePage.location(event.id)),
           ),
         ),
       ),

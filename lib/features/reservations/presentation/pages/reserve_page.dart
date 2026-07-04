@@ -1,17 +1,19 @@
+import 'dart:async';
+
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/helpers/date_format.dart';
 import 'package:eventix/core/helpers/money_format.dart';
-import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/providers/events_providers.dart';
+import 'package:eventix/features/payments/domain/entities/checkout_result.dart';
 import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
 import 'package:eventix/features/payments/presentation/pages/checkout_web_view_page.dart';
-import 'package:eventix/features/payments/presentation/providers/payments_providers.dart';
-import 'package:eventix/features/reservations/domain/entities/reservation.dart';
+import 'package:eventix/features/reservations/domain/usecases/purchase_tickets.dart';
 import 'package:eventix/features/reservations/presentation/pages/my_reservations_page.dart';
+import 'package:eventix/features/reservations/presentation/providers/purchase_provider.dart';
 import 'package:eventix/features/reservations/presentation/providers/reservations_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,115 +34,75 @@ class ReservePage extends ConsumerStatefulWidget {
 
 class _ReservePageState extends ConsumerState<ReservePage> {
   int _quantity = 1;
-  bool _loading = false;
   bool _wantInvoice = true;
-
-  int _maxQuantity(Event event) {
-    final int cap = event.capacity < 1 ? 1 : event.capacity;
-    return cap < 10 ? cap : 10;
-  }
 
   Future<void> _startPurchase(Event event) async {
     final double total = event.price * _quantity;
-
-    // Eventos gratuitos: no pasan por Stripe, se reservan directo.
-    if (total <= 0) {
-      final bool? confirmed = await UiConfirmDialog.show(
-        context,
-        title: 'Reservar',
-        message:
-            'Vas a reservar $_quantity cupo(s) para "${event.title}". '
-            'Este evento es gratuito. ¿Confirmar?',
-      );
-      if (confirmed != true) return;
-      await _confirmReservation();
-      return;
-    }
+    final bool isFree = total <= 0;
 
     final bool? confirmed = await UiConfirmDialog.show(
       context,
-      title: 'Pagar con Stripe',
-      message:
-          'Vas a pagar ${formatPrice(total)} por $_quantity cupo(s) para '
-          '"${event.title}".',
+      title: isFree ? 'Reservar' : 'Pagar con Stripe',
+      message: isFree
+          ? 'Vas a reservar $_quantity cupo(s) para "${event.title}". '
+                'Este evento es gratuito. ¿Confirmar?'
+          : 'Vas a pagar ${formatPrice(total)} por $_quantity cupo(s) para '
+                '"${event.title}".',
     );
     if (confirmed != true) return;
 
-    setState(() => _loading = true);
-    final Result<CheckoutSession> result = await ref
-        .read(createCheckoutSessionProvider)
-        .call(
+    await ref
+        .read(purchaseProvider.notifier)
+        .start(
           eventId: widget.eventId,
+          unitPrice: event.price,
           quantity: _quantity,
           wantInvoice: _wantInvoice,
         );
-    if (!mounted) return;
-    setState(() => _loading = false);
-
-    switch (result) {
-      case Success<CheckoutSession>(data: final CheckoutSession session):
-        await _payInWebView(session);
-      case FailureResult<CheckoutSession>(failure: final Failure failure):
-        context.showSnack(failure.userMessage);
-    }
   }
 
-  Future<void> _payInWebView(CheckoutSession session) async {
-    final String? status = await Navigator.of(context).push<String>(
-      MaterialPageRoute<String>(
-        builder: (_) => CheckoutWebViewPage(url: session.url),
-      ),
-    );
+  Future<void> _openCheckout(CheckoutSession session) async {
+    final CheckoutResult? result = await Navigator.of(context)
+        .push<CheckoutResult>(
+          MaterialPageRoute<CheckoutResult>(
+            builder: (_) => CheckoutWebViewPage(url: session.url),
+          ),
+        );
     if (!mounted) return;
-
-    if (status == 'success') {
-      await _verifyAndFinish(session.sessionId);
-    } else {
-      context.showSnack('Pago cancelado.');
-    }
+    await ref
+        .read(purchaseProvider.notifier)
+        .finishPayment(result ?? CheckoutResult.cancel);
   }
 
-  Future<void> _verifyAndFinish(String sessionId) async {
-    setState(() => _loading = true);
-    final Result<bool> result = await ref
-        .read(verifyCheckoutSessionProvider)
-        .call(sessionId: sessionId);
-    if (!mounted) return;
-
-    switch (result) {
-      case Success<bool>(data: final bool paid):
-        if (paid) {
-          await _confirmReservation();
-        } else {
-          setState(() => _loading = false);
-          context.showSnack('No pudimos confirmar el pago. Intenta de nuevo.');
-        }
-      case FailureResult<bool>(failure: final Failure failure):
-        setState(() => _loading = false);
-        context.showSnack(failure.userMessage);
-    }
-  }
-
-  Future<void> _confirmReservation() async {
-    setState(() => _loading = true);
-    final Result<Reservation> result = await ref
-        .read(createReservationProvider)
-        .call(eventId: widget.eventId, quantity: _quantity);
-    if (!mounted) return;
-
-    switch (result) {
-      case Success<Reservation>():
+  void _onPurchaseChanged(PurchaseState? previous, PurchaseState next) {
+    switch (next) {
+      case PurchaseAwaitingPayment(session: final CheckoutSession session):
+        unawaited(_openCheckout(session));
+      case PurchaseSuccess():
         ref.invalidate(myReservationsProvider);
+        ref.invalidate(eventAvailabilityProvider(widget.eventId));
         context.showSnack('¡Reserva confirmada!');
         context.go(MyReservationsPage.routePath);
-      case FailureResult<Reservation>(failure: final Failure failure):
-        setState(() => _loading = false);
+      case PurchaseCancelled():
+        ref.invalidate(eventAvailabilityProvider(widget.eventId));
+        context.showSnack('Pago cancelado. No se realizó la reserva.');
+      case PurchaseUnconfirmed():
+        context.showSnack(
+          'Recibimos tu pago pero la reserva no pudo confirmarse. '
+          'Escríbenos para resolverlo.',
+        );
+      case PurchaseFailed(failure: final Failure failure):
+        ref.invalidate(eventAvailabilityProvider(widget.eventId));
         context.showSnack(failure.userMessage);
+      case PurchaseIdle():
+      case PurchaseWorking():
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(purchaseProvider, _onPurchaseChanged);
     final AsyncValue<Event> eventAsync = ref.watch(
       eventByIdProvider(widget.eventId),
     );
@@ -152,15 +114,25 @@ class _ReservePageState extends ConsumerState<ReservePage> {
           message: failureMessage(e),
           onRetry: () => ref.invalidate(eventByIdProvider(widget.eventId)),
         ),
-        data: (Event event) => _body(event),
+        data: _body,
       ),
     );
   }
 
   Widget _body(Event event) {
+    final PurchaseState purchase = ref.watch(purchaseProvider);
+    final bool loading =
+        purchase is PurchaseWorking || purchase is PurchaseAwaitingPayment;
+    final AsyncValue<int> availableAsync = ref.watch(
+      eventAvailabilityProvider(widget.eventId),
+    );
+    final int? available = availableAsync.value;
+    final int max = _maxQuantity(available);
+    if (_quantity > max) _quantity = max;
     final double total = event.price * _quantity;
-    final int max = _maxQuantity(event);
     final bool isFree = total <= 0;
+    final bool soldOut = available != null && available <= 0;
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(UiSpacing.lg),
@@ -180,6 +152,15 @@ class _ReservePageState extends ConsumerState<ReservePage> {
                 color: context.colorScheme.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: UiSpacing.xs),
+            Text(
+              _availabilityLabel(availableAsync, event.capacity),
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: soldOut
+                    ? context.colorScheme.error
+                    : context.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: UiSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -188,7 +169,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
                 _QuantityStepper(
                   value: _quantity,
                   max: max,
-                  onChanged: _loading
+                  onChanged: loading
                       ? null
                       : (int v) => setState(() => _quantity = v),
                 ),
@@ -200,7 +181,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
               children: <Widget>[
                 Text('Precio unitario', style: context.textTheme.bodyLarge),
                 Text(
-                  isFree ? 'Gratis' : formatPrice(event.price),
+                  formatPrice(event.price),
                   style: context.textTheme.bodyLarge,
                 ),
               ],
@@ -216,7 +197,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
                   ),
                 ),
                 Text(
-                  isFree ? 'Gratis' : formatPrice(total),
+                  formatPrice(total),
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: context.colorScheme.primary,
@@ -228,7 +209,7 @@ class _ReservePageState extends ConsumerState<ReservePage> {
               const SizedBox(height: UiSpacing.lg),
               UiCheckOption(
                 value: _wantInvoice,
-                onChanged: _loading
+                onChanged: loading
                     ? (_) {}
                     : (bool v) => setState(() => _wantInvoice = v),
                 label: 'Enviar la factura a mi correo',
@@ -236,18 +217,39 @@ class _ReservePageState extends ConsumerState<ReservePage> {
             ],
             const SizedBox(height: UiSpacing.xl),
             UiButton(
-              label: isFree
+              label: soldOut
+                  ? 'Agotado'
+                  : isFree
                   ? 'Reservar gratis'
                   : 'Pagar ${formatPrice(total)}',
               expanded: true,
-              loading: _loading,
-              onPressed: () => _startPurchase(event),
+              loading: loading,
+              onPressed: soldOut ? null : () => _startPurchase(event),
             ),
           ],
         ),
       ),
     );
   }
+
+  /// Tope por compra: la regla vive en domain ([PurchaseTickets]); la UI solo
+  /// la acota a los cupos realmente disponibles.
+  int _maxQuantity(int? available) {
+    final int cap = available ?? PurchaseTickets.maxPerPurchase;
+    final int max = cap < PurchaseTickets.maxPerPurchase
+        ? cap
+        : PurchaseTickets.maxPerPurchase;
+    return max < 1 ? 1 : max;
+  }
+
+  String _availabilityLabel(AsyncValue<int> available, int capacity) =>
+      available.when(
+        data: (int a) => a <= 0
+            ? 'Evento agotado'
+            : '$a de $capacity cupos disponibles',
+        loading: () => 'Consultando disponibilidad…',
+        error: (_, _) => '$capacity cupos en total',
+      );
 }
 
 class _QuantityStepper extends StatelessWidget {

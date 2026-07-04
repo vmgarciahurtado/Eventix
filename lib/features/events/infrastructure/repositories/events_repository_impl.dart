@@ -45,4 +45,8 @@ class EventsRepositoryImpl implements EventsRepository {
     final List<RemoteCityModel> models = await _datasource.fetchCities();
     return models.map(CityMapper.toEntity).toList();
   });
+
+  @override
+  Future<Result<int>> getAvailableSpots(String eventId) =>
+      executeRepositoryCall(() => _datasource.fetchAvailableSpots(eventId));
 }

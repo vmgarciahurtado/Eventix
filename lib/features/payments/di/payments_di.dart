@@ -7,6 +7,7 @@ import 'package:eventix/features/payments/infrastructure/datasources/supabase_pa
 import 'package:eventix/features/payments/infrastructure/repositories/payments_repository_impl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// Composition root de la feature payments.
 final Provider<PaymentsDatasource> paymentsDatasourceProvider =
     Provider<PaymentsDatasource>(
       (Ref ref) =>

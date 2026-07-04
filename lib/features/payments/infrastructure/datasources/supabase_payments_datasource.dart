@@ -1,7 +1,10 @@
-import 'package:eventix/core/errors/failure.dart';
-import 'package:eventix/core/errors/map_supabase_error.dart';
+import 'package:eventix/core/errors/supabase_guard.dart';
 import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
+import 'package:eventix/features/payments/domain/entities/payment_verification.dart';
 import 'package:eventix/features/payments/infrastructure/datasources/payments_datasource.dart';
+import 'package:eventix/features/payments/infrastructure/mappers/payment_mappers.dart';
+import 'package:eventix/features/payments/infrastructure/models/remote_checkout_session_model.dart';
+import 'package:eventix/features/payments/infrastructure/models/remote_payment_verification_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabasePaymentsDatasource implements PaymentsDatasource {
@@ -9,53 +12,36 @@ class SupabasePaymentsDatasource implements PaymentsDatasource {
 
   final SupabaseClient _client;
 
-  Future<T> _guard<T>(Future<T> Function() fn) async {
-    try {
-      return await fn();
-    } on FunctionException catch (e) {
-      throw ServerFailure(_messageFrom(e) ?? 'No se pudo procesar el pago');
-    } catch (e) {
-      throw mapSupabaseError(e);
-    }
-  }
-
-  /// Las funciones devuelven `{ "error": "..." }` en los fallos controlados.
-  String? _messageFrom(FunctionException e) {
-    final Object? details = e.details;
-    if (details is Map && details['error'] is String) {
-      return details['error'] as String;
-    }
-    return null;
-  }
-
   @override
   Future<CheckoutSession> createCheckout({
-    required String eventId,
-    required int quantity,
+    required String reservationId,
     required bool wantInvoice,
-  }) => _guard(() async {
+  }) => guardSupabaseCall(() async {
     final FunctionResponse res = await _client.functions.invoke(
       'stripe-create-checkout',
       body: <String, dynamic>{
-        'eventId': eventId,
-        'quantity': quantity,
+        'reservationId': reservationId,
         'wantInvoice': wantInvoice,
       },
     );
-    final Map<String, dynamic> data = res.data as Map<String, dynamic>;
-    return CheckoutSession(
-      url: data['url'] as String,
-      sessionId: data['sessionId'] as String,
-    );
+    final RemoteCheckoutSessionModel model =
+        RemoteCheckoutSessionModel.fromJson(
+          res.data as Map<String, dynamic>,
+        );
+    return PaymentMappers.toCheckoutSession(model);
   });
 
   @override
-  Future<bool> verifyCheckout({required String sessionId}) => _guard(() async {
-    final FunctionResponse res = await _client.functions.invoke(
-      'stripe-verify-checkout',
-      body: <String, dynamic>{'sessionId': sessionId},
-    );
-    final Map<String, dynamic> data = res.data as Map<String, dynamic>;
-    return data['paid'] == true;
-  });
+  Future<PaymentVerification> verifyCheckout({required String sessionId}) =>
+      guardSupabaseCall(() async {
+        final FunctionResponse res = await _client.functions.invoke(
+          'stripe-verify-checkout',
+          body: <String, dynamic>{'sessionId': sessionId},
+        );
+        final RemotePaymentVerificationModel model =
+            RemotePaymentVerificationModel.fromJson(
+              res.data as Map<String, dynamic>,
+            );
+        return PaymentMappers.toPaymentVerification(model);
+      });
 }

@@ -1,4 +1,5 @@
 import 'package:eventix/core/helpers/result.dart';
+import 'package:eventix/features/payments/domain/entities/payment_verification.dart';
 import 'package:eventix/features/payments/domain/repositories/payments_repository.dart';
 
 class VerifyCheckoutSession {
@@ -6,6 +7,6 @@ class VerifyCheckoutSession {
 
   final PaymentsRepository _repository;
 
-  Future<Result<bool>> call({required String sessionId}) =>
+  Future<Result<PaymentVerification>> call({required String sessionId}) =>
       _repository.verifyCheckout(sessionId: sessionId);
 }

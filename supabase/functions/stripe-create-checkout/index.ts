@@ -1,7 +1,12 @@
-// Eventix — crea una sesión de Stripe Checkout para pagar una reserva.
-// verify_jwt = true: solo usuarios autenticados. El precio se toma de la BD
-// (no se confía en el cliente). Si wantInvoice es true, Stripe genera y envía
-// la factura al correo del usuario (invoice_creation).
+// Eventix — crea una sesión de Stripe Checkout para pagar una reserva
+// PENDIENTE ya creada (flujo reservar-primero → pagar → confirmar).
+// verify_jwt = true: solo usuarios autenticados.
+//
+// El cliente envía reservationId + wantInvoice. Cantidad, evento y precio se
+// leen de la BD (no se confía en el cliente): la reserva se consulta con el
+// token del usuario (RLS garantiza que sea suya) y el precio del evento es
+// autoritativo. La sesión lleva reservation_id en metadata para que
+// `stripe-verify-checkout` confirme esa reserva server-side.
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
@@ -49,15 +54,30 @@ Deno.serve(async (req: Request) => {
     const user = userData.user;
 
     const payload = await req.json();
-    const eventId = String(payload.eventId ?? '');
-    const quantity = Math.max(1, parseInt(String(payload.quantity ?? 1), 10));
+    const reservationId = String(payload.reservationId ?? '');
     const wantInvoice = payload.wantInvoice === true;
+    if (!reservationId) {
+      return json({ error: 'reservationId requerido' }, 400);
+    }
 
-    // Precio autoritativo desde la BD (RLS: lectura autenticada).
+    // La RLS limita la consulta a reservas del propio usuario.
+    const { data: reservation, error: resErr } = await supabase
+      .from('reservations')
+      .select('id, event_id, quantity, status')
+      .eq('id', reservationId)
+      .single();
+    if (resErr || !reservation) {
+      return json({ error: 'Reserva no encontrada' }, 404);
+    }
+    if (reservation.status !== 'pending') {
+      return json({ error: 'La reserva ya fue procesada' }, 409);
+    }
+
+    // Precio autoritativo desde la BD.
     const { data: event, error: evErr } = await supabase
       .from('events')
       .select('id, title, price')
-      .eq('id', eventId)
+      .eq('id', reservation.event_id)
       .single();
     if (evErr || !event) {
       return json({ error: 'Evento no encontrado' }, 404);
@@ -74,7 +94,7 @@ Deno.serve(async (req: Request) => {
     params.set('success_url', `${returnBase}?status=success`);
     params.set('cancel_url', `${returnBase}?status=cancel`);
     params.set('customer_email', user.email ?? '');
-    params.set('line_items[0][quantity]', String(quantity));
+    params.set('line_items[0][quantity]', String(reservation.quantity));
     params.set('line_items[0][price_data][currency]', CURRENCY);
     params.set('line_items[0][price_data][unit_amount]', String(unitAmount));
     params.set('line_items[0][price_data][product_data][name]', event.title);
@@ -82,8 +102,9 @@ Deno.serve(async (req: Request) => {
       params.set('invoice_creation[enabled]', 'true');
     }
     params.set('metadata[user_id]', user.id);
-    params.set('metadata[event_id]', eventId);
-    params.set('metadata[quantity]', String(quantity));
+    params.set('metadata[reservation_id]', reservation.id);
+    params.set('metadata[event_id]', event.id);
+    params.set('metadata[quantity]', String(reservation.quantity));
 
     const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',

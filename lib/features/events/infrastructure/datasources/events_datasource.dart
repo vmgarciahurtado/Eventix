@@ -13,4 +13,8 @@ abstract interface class EventsDatasource {
   Future<List<RemoteCategoryModel>> fetchCategories();
 
   Future<List<RemoteCityModel>> fetchCities();
+
+  /// Cupos disponibles del evento (capacidad menos reservas activas),
+  /// calculados por el backend (vista `event_availability`).
+  Future<int> fetchAvailableSpots(String eventId);
 }

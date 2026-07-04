@@ -34,12 +34,14 @@ void main() {
       () => datasource.createReservation(
         eventId: any(named: 'eventId'),
         quantity: any(named: 'quantity'),
+        status: any(named: 'status'),
       ),
     ).thenAnswer((_) async => _tReservation());
 
     final Result<Reservation> result = await repository.createReservation(
       eventId: 'evt-1',
       quantity: 2,
+      initialStatus: ReservationStatus.confirmed,
     );
 
     expect(result, isA<Success<Reservation>>());
@@ -47,6 +49,13 @@ void main() {
     expect(reservation.quantity, 2);
     expect(reservation.status, ReservationStatus.confirmed);
     expect(reservation.eventTitle, 'Festival');
+    verify(
+      () => datasource.createReservation(
+        eventId: 'evt-1',
+        quantity: 2,
+        status: 'confirmed',
+      ),
+    ).called(1);
   });
 
   test('getMyReservations maps the list of models', () async {
