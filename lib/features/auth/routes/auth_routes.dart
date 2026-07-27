@@ -1,22 +1,12 @@
-import 'package:eventix/features/auth/presentation/pages/auth_success_page.dart';
 import 'package:eventix/features/auth/presentation/pages/login_page.dart';
 import 'package:eventix/features/auth/presentation/pages/new_password_page.dart';
+import 'package:eventix/features/auth/presentation/pages/new_password_success_page.dart';
 import 'package:eventix/features/auth/presentation/pages/register_page.dart';
 import 'package:eventix/features/auth/presentation/pages/reset_password_request_page.dart';
 import 'package:eventix/features/auth/presentation/pages/verify_code_page.dart';
 import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-/// Rutas accesibles sin sesión activa (usadas por el guard del router).
-const Set<String> publicAuthRoutes = <String>{
-  LoginPage.routePath,
-  RegisterPage.routePath,
-  VerifyCodePage.routePath,
-  ResetPasswordRequestPage.routePath,
-  NewPasswordPage.routePath,
-  AuthSuccessPage.routePath,
-};
 
 final List<RouteBase> authRoutes = <RouteBase>[
   GoRoute(
@@ -47,12 +37,9 @@ final List<RouteBase> authRoutes = <RouteBase>[
         const NewPasswordPage(),
   ),
   GoRoute(
-    path: AuthSuccessPage.routePath,
-    builder: (BuildContext context, GoRouterState state) {
-      final AuthSuccessArgs? args = state.extra as AuthSuccessArgs?;
-      if (args == null) return const LoginPage();
-      return AuthSuccessPage(args: args);
-    },
+    path: NewPasswordSuccessPage.routePath,
+    builder: (BuildContext context, GoRouterState state) =>
+        const NewPasswordSuccessPage(),
   ),
   GoRoute(
     path: OnboardingPage.routePath,

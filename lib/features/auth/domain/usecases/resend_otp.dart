@@ -1,5 +1,5 @@
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/domain/repositories/auth_repository.dart';
 
 class ResendOtp {

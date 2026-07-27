@@ -1,6 +1,5 @@
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/app_user.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 
 /// Contrato de autenticación. La implementación concreta usa Supabase.
 abstract interface class AuthRepository {
@@ -33,9 +32,4 @@ abstract interface class AuthRepository {
   Future<Result<void>> updatePassword({required String newPassword});
 
   Future<Result<void>> signOut();
-
-  /// Perfil del usuario autenticado (o `null` si no hay sesión).
-  Future<Result<AppUser?>> currentProfile();
-
-  Future<Result<void>> completeOnboarding();
 }

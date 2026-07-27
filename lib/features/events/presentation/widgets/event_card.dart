@@ -1,6 +1,7 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/helpers/date_format.dart';
 import 'package:eventix/core/helpers/money_format.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/widgets/event_image.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: UiSpacing.md),
+      margin: const EdgeInsets.only(bottom: UiSpacing.medium),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
@@ -23,7 +24,7 @@ class EventCard extends StatelessWidget {
           children: <Widget>[
             _Header(event: event),
             Padding(
-              padding: const EdgeInsets.all(UiSpacing.md),
+              padding: const EdgeInsets.all(UiSpacing.medium),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -35,12 +36,12 @@ class EventCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: UiSpacing.xs),
+                  const SizedBox(height: UiSpacing.extraSmall),
                   _IconText(
                     icon: Icons.location_on_outlined,
                     text: event.cityName,
                   ),
-                  const SizedBox(height: UiSpacing.xxs),
+                  const SizedBox(height: UiSpacing.extraExtraSmall),
                   _IconText(
                     icon: Icons.calendar_today_outlined,
                     text: formatEventDateTime(event.startsAt),
@@ -70,14 +71,19 @@ class _Header extends StatelessWidget {
           height: 120,
         ),
         Positioned(
-          top: UiSpacing.sm,
-          left: UiSpacing.sm,
+          top: UiSpacing.small,
+          left: UiSpacing.small,
           child: _Pill(text: event.categoryName),
         ),
         Positioned(
-          top: UiSpacing.sm,
-          right: UiSpacing.sm,
-          child: _Pill(text: formatPrice(event.price)),
+          top: UiSpacing.small,
+          right: UiSpacing.small,
+          child: _Pill(
+            text: formatPrice(
+              event.price,
+              freeLabel: AppLocalizations.of(context).common_free,
+            ),
+          ),
         ),
       ],
     );
@@ -93,8 +99,8 @@ class _Pill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: UiSpacing.sm,
-        vertical: UiSpacing.xxs,
+        horizontal: UiSpacing.small,
+        vertical: UiSpacing.extraExtraSmall,
       ),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.35),
@@ -119,7 +125,7 @@ class _IconText extends StatelessWidget {
     return Row(
       children: <Widget>[
         Icon(icon, size: 16, color: context.colorScheme.onSurfaceVariant),
-        const SizedBox(width: UiSpacing.xs),
+        const SizedBox(width: UiSpacing.extraSmall),
         Expanded(
           child: Text(
             text,

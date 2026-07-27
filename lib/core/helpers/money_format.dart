@@ -1,8 +1,9 @@
 import 'package:intl/intl.dart';
 
-/// Formatea un precio en pesos colombianos, ej: "\$80.000". Si es 0, "Gratis".
-String formatPrice(double value) {
-  if (value <= 0) return 'Gratis';
+/// Formatea un precio en pesos colombianos, ej: "\$80.000". Si es 0, devuelve
+/// [freeLabel] (por defecto "Gratis"; pásalo localizado desde presentación).
+String formatPrice(double value, {String freeLabel = 'Gratis'}) {
+  if (value <= 0) return freeLabel;
   return NumberFormat.currency(
     locale: 'es_CO',
     symbol: r'$',

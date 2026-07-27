@@ -1,6 +1,6 @@
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
-import 'package:eventix/features/reservations/domain/entities/reservation_status.dart';
+import 'package:eventix/features/reservations/domain/enums/reservation_status.dart';
 import 'package:eventix/features/reservations/infrastructure/datasources/reservations_datasource.dart';
 import 'package:eventix/features/reservations/infrastructure/models/remote_reservation_model.dart';
 import 'package:eventix/features/reservations/infrastructure/repositories/reservations_repository_impl.dart';
@@ -63,8 +63,8 @@ void main() {
       (_) async => <RemoteReservationModel>[_tReservation()],
     );
 
-    final Result<List<Reservation>> result =
-        await repository.getMyReservations();
+    final Result<List<Reservation>> result = await repository
+        .getMyReservations();
 
     expect(result, isA<Success<List<Reservation>>>());
     expect((result as Success<List<Reservation>>).data, hasLength(1));

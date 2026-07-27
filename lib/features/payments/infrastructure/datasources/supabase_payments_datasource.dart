@@ -2,7 +2,8 @@ import 'package:eventix/core/errors/supabase_guard.dart';
 import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
 import 'package:eventix/features/payments/domain/entities/payment_verification.dart';
 import 'package:eventix/features/payments/infrastructure/datasources/payments_datasource.dart';
-import 'package:eventix/features/payments/infrastructure/mappers/payment_mappers.dart';
+import 'package:eventix/features/payments/infrastructure/mappers/checkout_session_mapper.dart';
+import 'package:eventix/features/payments/infrastructure/mappers/payment_verification_mapper.dart';
 import 'package:eventix/features/payments/infrastructure/models/remote_checkout_session_model.dart';
 import 'package:eventix/features/payments/infrastructure/models/remote_payment_verification_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,7 +29,7 @@ class SupabasePaymentsDatasource implements PaymentsDatasource {
         RemoteCheckoutSessionModel.fromJson(
           res.data as Map<String, dynamic>,
         );
-    return PaymentMappers.toCheckoutSession(model);
+    return CheckoutSessionMapper.toEntity(model);
   });
 
   @override
@@ -42,6 +43,6 @@ class SupabasePaymentsDatasource implements PaymentsDatasource {
             RemotePaymentVerificationModel.fromJson(
               res.data as Map<String, dynamic>,
             );
-        return PaymentMappers.toPaymentVerification(model);
+        return PaymentVerificationMapper.toEntity(model);
       });
 }

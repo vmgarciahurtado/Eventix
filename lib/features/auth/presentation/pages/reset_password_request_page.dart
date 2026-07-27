@@ -1,102 +1,69 @@
 import 'dart:async';
 
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
-import 'package:eventix/core/helpers/form_validators.dart';
-import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/async_error_view.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/presentation/pages/verify_code_page.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
+import 'package:eventix/features/auth/presentation/providers/reset_password_provider.dart';
+import 'package:eventix/features/auth/presentation/widgets/reset_password_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ResetPasswordRequestPage extends ConsumerStatefulWidget {
+class ResetPasswordRequestPage extends ConsumerWidget {
   static const String routePath = '/reset-password';
 
   const ResetPasswordRequestPage({super.key});
 
   @override
-  ConsumerState<ResetPasswordRequestPage> createState() =>
-      _ResetPasswordRequestPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool loading = ref.watch(resetPasswordProvider).isLoading;
 
-class _ResetPasswordRequestPageState
-    extends ConsumerState<ResetPasswordRequestPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _email = TextEditingController();
-  bool _loading = false;
+    ref.listen(resetPasswordProvider, (
+      AsyncValue<String?>? previous,
+      AsyncValue<String?> next,
+    ) {
+      switch (next) {
+        case AsyncError<String?>(:final Object error):
+          context.showSnack(failureMessage(error, l10n.error_unexpected));
+        case AsyncData<String?>(value: final String email):
+          context.showSnack(l10n.reset_password_code_sent);
+          unawaited(
+            context.push(
+              VerifyCodePage.routePath,
+              extra: VerifyCodeArgs(email: email, purpose: OtpPurpose.recovery),
+            ),
+          );
+        default:
+          break;
+      }
+    });
 
-  @override
-  void dispose() {
-    _email.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
-
-    final String email = _email.text.trim();
-    final Result<void> result = await ref
-        .read(sendPasswordResetProvider)
-        .call(email: email);
-    if (!mounted) return;
-    setState(() => _loading = false);
-
-    switch (result) {
-      case Success<void>():
-        context.showSnack('Te enviamos un código para restablecer');
-        unawaited(
-          context.push(
-            VerifyCodePage.routePath,
-            extra: VerifyCodeArgs(email: email, purpose: OtpPurpose.recovery),
-          ),
-        );
-      case FailureResult<void>(failure: final Failure failure):
-        context.showSnack(failure.userMessage);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Recuperar contraseña')),
+      appBar: AppBar(title: Text(l10n.reset_password_title)),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(UiSpacing.lg),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text(
-                  'Ingresa tu correo y te enviaremos un código para crear una '
-                  'nueva contraseña.',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+          padding: const EdgeInsets.all(UiSpacing.large),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                l10n.reset_password_description,
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
-                const SizedBox(height: UiSpacing.lg),
-                UiTextField(
-                  controller: _email,
-                  label: 'Correo',
-                  hint: 'tu@correo.com',
-                  prefixIcon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.done,
-                  validator: FormValidators.email,
-                ),
-                const SizedBox(height: UiSpacing.xl),
-                UiButton(
-                  label: 'Enviar código',
-                  expanded: true,
-                  loading: _loading,
-                  onPressed: _submit,
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: UiSpacing.large),
+              ResetPasswordForm(
+                loading: loading,
+                onSubmit: ref
+                    .read(resetPasswordProvider.notifier)
+                    .sendResetCode,
+              ),
+            ],
           ),
         ),
       ),

@@ -1,4 +1,4 @@
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 
 /// Contrato del datasource de autenticación. La implementación concreta
 /// (`SupabaseAuthDatasource`) traduce los errores de Supabase a `Failure`.
@@ -28,9 +28,4 @@ abstract interface class AuthDatasource {
   Future<void> updatePassword({required String newPassword});
 
   Future<void> signOut();
-
-  /// Fila de `profiles` del usuario autenticado, o `null` si no hay sesión.
-  Future<Map<String, dynamic>?> fetchCurrentProfile();
-
-  Future<void> completeOnboarding();
 }

@@ -1,7 +1,7 @@
 import 'package:eventix/core/helpers/execute_repository_call.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
-import 'package:eventix/features/reservations/domain/entities/reservation_status.dart';
+import 'package:eventix/features/reservations/domain/enums/reservation_status.dart';
 import 'package:eventix/features/reservations/domain/repositories/reservations_repository.dart';
 import 'package:eventix/features/reservations/infrastructure/datasources/reservations_datasource.dart';
 import 'package:eventix/features/reservations/infrastructure/mappers/reservation_mapper.dart';

@@ -1,7 +1,6 @@
 import 'package:eventix/core/helpers/execute_repository_call.dart';
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/app_user.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/domain/repositories/auth_repository.dart';
 import 'package:eventix/features/auth/infrastructure/datasources/auth_datasource.dart';
 
@@ -65,21 +64,4 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> signOut() =>
       executeRepositoryCall(() => _datasource.signOut());
-
-  @override
-  Future<Result<AppUser?>> currentProfile() => executeRepositoryCall(() async {
-    final Map<String, dynamic>? row = await _datasource.fetchCurrentProfile();
-    if (row == null) return null;
-    return AppUser(
-      id: row['id'] as String,
-      email: (row['email'] as String?) ?? '',
-      firstName: (row['first_name'] as String?) ?? '',
-      lastName: (row['last_name'] as String?) ?? '',
-      onboardingCompleted: (row['onboarding_completed'] as bool?) ?? false,
-    );
-  });
-
-  @override
-  Future<Result<void>> completeOnboarding() =>
-      executeRepositoryCall(() => _datasource.completeOnboarding());
 }

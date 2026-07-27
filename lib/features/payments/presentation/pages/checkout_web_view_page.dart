@@ -1,20 +1,24 @@
 import 'dart:async';
 
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/features/payments/domain/entities/checkout_result.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/features/payments/domain/enums/checkout_result.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-/// Abre Stripe Checkout dentro de la app y devuelve un [CheckoutResult].
-///
-/// Intercepta la navegación al `return_url` (`.../stripe-return?status=...`)
-/// ANTES de que cargue, así esa página nunca se muestra y cerramos el WebView
-/// con `Navigator.pop`. Se usa Navigator imperativo (no GoRouter) a propósito:
-/// es un flujo modal que devuelve un valor tipado al caller.
+/// Abre un checkout hospedado y devuelve un [CheckoutResult].
 class CheckoutWebViewPage extends StatefulWidget {
-  const CheckoutWebViewPage({required this.url, super.key});
+  const CheckoutWebViewPage({
+    required this.url,
+    required this.returnUrlMarker,
+    super.key,
+  });
 
   final String url;
+
+  /// Ver [CheckoutSession.returnUrlMarker]: marca el fin del flujo sin que
+  /// esta página sepa qué pasarela lo atiende.
+  final String returnUrlMarker;
 
   @override
   State<CheckoutWebViewPage> createState() => _CheckoutWebViewPageState();
@@ -36,7 +40,7 @@ class _CheckoutWebViewPageState extends State<CheckoutWebViewPage> {
             if (mounted) setState(() => _loading = false);
           },
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.contains('/stripe-return')) {
+            if (request.url.contains(widget.returnUrlMarker)) {
               final CheckoutResult result = CheckoutResult.fromStatus(
                 Uri.parse(request.url).queryParameters['status'],
               );
@@ -56,7 +60,7 @@ class _CheckoutWebViewPageState extends State<CheckoutWebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pago seguro'),
+        title: Text(AppLocalizations.of(context).checkout_title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(CheckoutResult.cancel),

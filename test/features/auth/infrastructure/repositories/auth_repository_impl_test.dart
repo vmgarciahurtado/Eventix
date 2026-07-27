@@ -1,7 +1,6 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/app_user.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/infrastructure/datasources/auth_datasource.dart';
 import 'package:eventix/features/auth/infrastructure/repositories/auth_repository_impl.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,38 +51,6 @@ void main() {
 
       expect(result, isA<FailureResult<void>>());
       expect((result as FailureResult<void>).failure, isA<AuthFailure>());
-    });
-  });
-
-  group('currentProfile', () {
-    test('maps the profile row into an AppUser', () async {
-      when(datasource.fetchCurrentProfile).thenAnswer(
-        (_) async => <String, dynamic>{
-          'id': 'uuid-1',
-          'email': 'a@b.com',
-          'first_name': 'Ana',
-          'last_name': 'Gómez',
-          'onboarding_completed': true,
-        },
-      );
-
-      final Result<AppUser?> result = await repository.currentProfile();
-
-      expect(result, isA<Success<AppUser?>>());
-      final AppUser? user = (result as Success<AppUser?>).data;
-      expect(user, isNotNull);
-      expect(user!.id, 'uuid-1');
-      expect(user.fullName, 'Ana Gómez');
-      expect(user.onboardingCompleted, isTrue);
-    });
-
-    test('returns null data when there is no profile row', () async {
-      when(datasource.fetchCurrentProfile).thenAnswer((_) async => null);
-
-      final Result<AppUser?> result = await repository.currentProfile();
-
-      expect(result, isA<Success<AppUser?>>());
-      expect((result as Success<AppUser?>).data, isNull);
     });
   });
 

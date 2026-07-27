@@ -1,15 +1,11 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/core/widgets/app_logo.dart';
-import 'package:eventix/features/auth/domain/entities/app_user.dart';
-import 'package:eventix/features/auth/presentation/pages/login_page.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
-import 'package:eventix/features/home/presentation/pages/home_page.dart';
-import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:eventix/features/auth/di/auth_di.dart';
+import 'package:eventix/features/auth/domain/enums/post_auth_destination.dart';
+import 'package:eventix/features/auth/routes/post_auth_destination_routing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   static const String routePath = '/';
@@ -31,24 +27,11 @@ class _SplashPageState extends ConsumerState<SplashPage> {
     await Future<void>.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
 
-    final Session? session = Supabase.instance.client.auth.currentSession;
-    if (session == null) {
-      context.go(LoginPage.routePath);
-      return;
-    }
-
-    final Result<AppUser?> profile = await ref
-        .read(getCurrentProfileProvider)
+    final PostAuthDestination destination = await ref
+        .read(resolvePostAuthDestinationProvider)
         .call();
     if (!mounted) return;
-    final bool onboardingDone = switch (profile) {
-      Success<AppUser?>(data: final AppUser? data) =>
-        data?.onboardingCompleted ?? true,
-      FailureResult<AppUser?>() => true,
-    };
-    context.go(
-      onboardingDone ? HomePage.routePath : OnboardingPage.routePath,
-    );
+    context.go(destination.routePath);
   }
 
   @override
@@ -59,7 +42,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             AppLogo(size: 96),
-            SizedBox(height: UiSpacing.lg),
+            SizedBox(height: UiSpacing.large),
             UiLoader(),
           ],
         ),

@@ -22,12 +22,10 @@ final Provider<PaymentsRepository> paymentsRepositoryProvider =
 
 final Provider<CreateCheckoutSession> createCheckoutSessionProvider =
     Provider<CreateCheckoutSession>(
-      (Ref ref) =>
-          CreateCheckoutSession(ref.watch(paymentsRepositoryProvider)),
+      (Ref ref) => CreateCheckoutSession(ref.watch(paymentsRepositoryProvider)),
     );
 
 final Provider<VerifyCheckoutSession> verifyCheckoutSessionProvider =
     Provider<VerifyCheckoutSession>(
-      (Ref ref) =>
-          VerifyCheckoutSession(ref.watch(paymentsRepositoryProvider)),
+      (Ref ref) => VerifyCheckoutSession(ref.watch(paymentsRepositoryProvider)),
     );

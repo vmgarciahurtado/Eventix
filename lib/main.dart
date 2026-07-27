@@ -5,6 +5,7 @@ import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/core/router/app_router.dart';
 import 'package:eventix/core/theme/app_palette.dart';
 import 'package:eventix/core/theme/theme_provider.dart';
+import 'package:eventix/core/widgets/missing_env_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,15 +14,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // El `.env` no se versiona (se comparte por canal privado). Si falta o está
-  // incompleto se muestra una pantalla de configuración en vez de crashear.
   try {
     await dotenv.load();
   } catch (_) {
-    // Sin `.env`: Env devolverá valores vacíos y se mostrará _MissingEnvApp.
+    // Sin `.env`: se cae al chequeo de abajo y se muestra MissingEnvApp.
   }
   if (Env.supabaseUrl.isEmpty || Env.supabasePublishableKey.isEmpty) {
-    runApp(const _MissingEnvApp());
+    runApp(const MissingEnvApp());
     return;
   }
   await initializeDateFormatting('es');
@@ -30,38 +29,6 @@ Future<void> main() async {
     publishableKey: Env.supabasePublishableKey,
   );
   runApp(const ProviderScope(child: MainApp()));
-}
-
-/// Pantalla mínima cuando faltan las variables de entorno: explica cómo
-/// configurar el proyecto sin exponer ningún valor sensible.
-class _MissingEnvApp extends StatelessWidget {
-  const _MissingEnvApp();
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: UiKitTheme.light(
-        primary: AppPalette.primary,
-        secondary: AppPalette.secondary,
-        fontFamily: Fonts.poppins,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Padding(
-            padding: EdgeInsets.all(UiSpacing.lg),
-            child: Text(
-              'Falta configurar el archivo .env.\n\n'
-              'Copia .env.example como .env en la raíz del proyecto y usa '
-              'los valores compartidos por canal privado. Luego vuelve a '
-              'ejecutar la app.',
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class MainApp extends ConsumerWidget {

@@ -1,159 +1,97 @@
+import 'dart:async';
+
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
-import 'package:eventix/core/helpers/form_validators.dart';
-import 'package:eventix/core/helpers/result.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/core/widgets/app_logo.dart';
-import 'package:eventix/features/auth/domain/entities/app_user.dart';
+import 'package:eventix/core/widgets/async_error_view.dart';
+import 'package:eventix/features/auth/domain/enums/post_auth_destination.dart';
 import 'package:eventix/features/auth/presentation/pages/register_page.dart';
 import 'package:eventix/features/auth/presentation/pages/reset_password_request_page.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
-import 'package:eventix/features/home/presentation/pages/home_page.dart';
-import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';
+import 'package:eventix/features/auth/presentation/providers/login_provider.dart';
+import 'package:eventix/features/auth/presentation/widgets/login_form.dart';
+import 'package:eventix/features/auth/routes/post_auth_destination_routing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
+class LoginPage extends ConsumerWidget {
   static const String routePath = '/login';
 
   const LoginPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool loading = ref.watch(loginProvider).isLoading;
 
-class _LoginPageState extends ConsumerState<LoginPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _email = TextEditingController();
-  final TextEditingController _password = TextEditingController();
-  bool _loading = false;
+    ref.listen(loginProvider, (
+      AsyncValue<PostAuthDestination?>? previous,
+      AsyncValue<PostAuthDestination?> next,
+    ) {
+      switch (next) {
+        case AsyncError<PostAuthDestination?>(:final Object error):
+          context.showSnack(failureMessage(error, l10n.error_unexpected));
+        case AsyncData<PostAuthDestination?>(
+          value: final PostAuthDestination destination,
+        ):
+          context.go(destination.routePath);
+        default:
+          break;
+      }
+    });
 
-  @override
-  void dispose() {
-    _email.dispose();
-    _password.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
-
-    final Result<void> result = await ref
-        .read(signInProvider)
-        .call(email: _email.text.trim(), password: _password.text);
-    if (!mounted) return;
-
-    switch (result) {
-      case Success<void>():
-        await _routeAfterLogin();
-      case FailureResult<void>(failure: final Failure failure):
-        setState(() => _loading = false);
-        context.showSnack(failure.userMessage);
-    }
-  }
-
-  Future<void> _routeAfterLogin() async {
-    final Result<AppUser?> profile = await ref
-        .read(getCurrentProfileProvider)
-        .call();
-    if (!mounted) return;
-    final bool onboardingDone = switch (profile) {
-      Success<AppUser?>(data: final AppUser? data) =>
-        data?.onboardingCompleted ?? true,
-      FailureResult<AppUser?>() => true,
-    };
-    context.go(
-      onboardingDone ? HomePage.routePath : OnboardingPage.routePath,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(UiSpacing.lg),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  const AppLogo(size: 72),
-                  const SizedBox(height: UiSpacing.md),
-                  Text(
-                    'Bienvenido a Eventix',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.all(UiSpacing.large),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                const AppLogo(size: 72),
+                const SizedBox(height: UiSpacing.medium),
+                Text(
+                  l10n.login_welcome,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: UiSpacing.extraSmall),
+                Text(
+                  l10n.login_subtitle,
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: UiSpacing.extraLarge),
+                LoginForm(
+                  loading: loading,
+                  onSubmit: ref.read(loginProvider.notifier).signIn,
+                  onForgotPassword: () => unawaited(
+                    context.push(ResetPasswordRequestPage.routePath),
+                  ),
+                ),
+                const SizedBox(height: UiSpacing.medium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      l10n.login_no_account,
+                      style: context.textTheme.bodyMedium,
                     ),
-                  ),
-                  const SizedBox(height: UiSpacing.xs),
-                  Text(
-                    'Inicia sesión para descubrir eventos',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: context.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: UiSpacing.xl),
-                  UiTextField(
-                    controller: _email,
-                    label: 'Correo',
-                    hint: 'tu@correo.com',
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    validator: FormValidators.email,
-                  ),
-                  const SizedBox(height: UiSpacing.md),
-                  UiTextField(
-                    controller: _password,
-                    label: 'Contraseña',
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: true,
-                    textInputAction: TextInputAction.done,
-                    validator: FormValidators.password,
-                  ),
-                  const SizedBox(height: UiSpacing.sm),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _loading
+                    TextButton(
+                      onPressed: loading
                           ? null
-                          : () => context.push(
-                              ResetPasswordRequestPage.routePath,
-                            ),
-                      child: const Text('¿Olvidaste tu contraseña?'),
+                          : () =>
+                                unawaited(context.push(RegisterPage.routePath)),
+                      child: Text(l10n.login_register_cta),
                     ),
-                  ),
-                  const SizedBox(height: UiSpacing.md),
-                  UiButton(
-                    label: 'Iniciar sesión',
-                    expanded: true,
-                    loading: _loading,
-                    onPressed: _submit,
-                  ),
-                  const SizedBox(height: UiSpacing.md),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        '¿No tienes cuenta?',
-                        style: context.textTheme.bodyMedium,
-                      ),
-                      TextButton(
-                        onPressed: _loading
-                            ? null
-                            : () => context.push(RegisterPage.routePath),
-                        child: const Text('Regístrate'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

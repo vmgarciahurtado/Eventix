@@ -1,6 +1,6 @@
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
-import 'package:eventix/features/reservations/domain/entities/reservation_status.dart';
+import 'package:eventix/features/reservations/domain/enums/reservation_status.dart';
 
 abstract interface class ReservationsRepository {
   /// Crea una reserva y devuelve la reserva creada.

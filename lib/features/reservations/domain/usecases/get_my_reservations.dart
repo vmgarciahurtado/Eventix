@@ -7,6 +7,5 @@ class GetMyReservations {
 
   final ReservationsRepository _repository;
 
-  Future<Result<List<Reservation>>> call() =>
-      _repository.getMyReservations();
+  Future<Result<List<Reservation>>> call() => _repository.getMyReservations();
 }

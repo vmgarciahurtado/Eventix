@@ -1,63 +1,14 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/payments/domain/entities/checkout_result.dart';
-import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
+import 'package:eventix/features/payments/domain/enums/checkout_result.dart';
 import 'package:eventix/features/reservations/di/reservations_di.dart';
 import 'package:eventix/features/reservations/domain/entities/purchase_outcome.dart';
-import 'package:eventix/features/reservations/domain/entities/reservation.dart';
+import 'package:eventix/features/reservations/domain/enums/payment_completion.dart';
+import 'package:eventix/features/reservations/presentation/providers/purchase_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Estados explícitos del flujo de compra (reservar → pagar → confirmar).
-sealed class PurchaseState {
-  const PurchaseState();
-}
-
-class PurchaseIdle extends PurchaseState {
-  const PurchaseIdle();
-}
-
-/// Hay una operación en curso (creando reserva/checkout o verificando pago).
-class PurchaseWorking extends PurchaseState {
-  const PurchaseWorking();
-}
-
-/// Reserva pendiente creada; falta que el usuario pague en el WebView.
-class PurchaseAwaitingPayment extends PurchaseState {
-  const PurchaseAwaitingPayment({
-    required this.reservation,
-    required this.session,
-  });
-
-  final Reservation reservation;
-  final CheckoutSession session;
-}
-
-/// Reserva confirmada (gratuita o pagada y verificada).
-class PurchaseSuccess extends PurchaseState {
-  const PurchaseSuccess({required this.reservation});
-
-  final Reservation reservation;
-}
-
-/// El usuario canceló el pago: la reserva pendiente se liberó.
-class PurchaseCancelled extends PurchaseState {
-  const PurchaseCancelled();
-}
-
-/// Pago recibido pero la reserva no pudo confirmarse (pending expirado y
-/// cupo revendido). Caso excepcional que requiere soporte.
-class PurchaseUnconfirmed extends PurchaseState {
-  const PurchaseUnconfirmed();
-}
-
-class PurchaseFailed extends PurchaseState {
-  const PurchaseFailed(this.failure);
-
-  final Failure failure;
-}
-
-/// Orquesta la compra desde la UI delegando la lógica a [PurchaseTickets].
-/// La página solo reacciona a los estados (abrir WebView, navegar, snack).
+/// Estados del flujo de compra. La página solo reacciona a los
+/// estados: abrir el WebView, navegar, avisar.
 class PurchaseNotifier extends Notifier<PurchaseState> {
   @override
   PurchaseState build() => const PurchaseIdle();
@@ -72,29 +23,26 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
     state = const PurchaseWorking();
 
     final Result<PurchaseOutcome> result = await ref
-        .read(purchaseTicketsProvider)
-        .start(
+        .read(startPurchaseProvider)
+        .call(
           eventId: eventId,
           unitPrice: unitPrice,
           quantity: quantity,
           wantInvoice: wantInvoice,
         );
 
-    switch (result) {
-      case FailureResult<PurchaseOutcome>(failure: final Failure failure):
-        state = PurchaseFailed(failure);
-      case Success<PurchaseOutcome>(
-        data: final PurchaseCompleted completed,
-      ):
-        state = PurchaseSuccess(reservation: completed.reservation);
-      case Success<PurchaseOutcome>(
-        data: final PurchasePaymentRequired pending,
-      ):
-        state = PurchaseAwaitingPayment(
+    state = switch (result) {
+      FailureResult<PurchaseOutcome>(:final Failure failure) => PurchaseFailed(
+        failure,
+      ),
+      Success<PurchaseOutcome>(data: final PurchaseCompleted done) =>
+        PurchaseSuccess(reservation: done.reservation),
+      Success<PurchaseOutcome>(data: final PurchasePaymentRequired pending) =>
+        PurchaseAwaitingPayment(
           reservation: pending.reservation,
           session: pending.session,
-        );
-    }
+        ),
+    };
   }
 
   /// Procesa el resultado del WebView de checkout.
@@ -104,30 +52,23 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
     state = const PurchaseWorking();
 
     if (result == CheckoutResult.cancel) {
-      // Best effort: si el borrado falla, el pending expira solo en 15 min.
-      await ref
-          .read(purchaseTicketsProvider)
-          .abandonPayment(reservationId: current.reservation.id);
+      await _releasePending(current.reservation.id);
       state = const PurchaseCancelled();
       return;
     }
 
     final Result<PaymentCompletion> completion = await ref
-        .read(purchaseTicketsProvider)
-        .completePayment(sessionId: current.session.sessionId);
+        .read(completePaymentProvider)
+        .call(sessionId: current.session.sessionId);
 
     switch (completion) {
-      case FailureResult<PaymentCompletion>(failure: final Failure failure):
+      case FailureResult<PaymentCompletion>(:final Failure failure):
         state = PurchaseFailed(failure);
       case Success<PaymentCompletion>(data: PaymentCompletion.confirmed):
         state = PurchaseSuccess(reservation: current.reservation);
       case Success<PaymentCompletion>(data: PaymentCompletion.notPaid):
-        await ref
-            .read(purchaseTicketsProvider)
-            .abandonPayment(reservationId: current.reservation.id);
-        state = const PurchaseFailed(
-          ValidationFailure('El pago no se completó. Intenta de nuevo.'),
-        );
+        await _releasePending(current.reservation.id);
+        state = const PurchaseNotPaid();
       case Success<PaymentCompletion>(
         data: PaymentCompletion.paidButNotConfirmed,
       ):
@@ -136,6 +77,10 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
   }
 
   void reset() => state = const PurchaseIdle();
+
+  /// Si el borrado falla, el pending expira solo en 15 min.
+  Future<void> _releasePending(String reservationId) =>
+      ref.read(cancelPendingReservationProvider).call(id: reservationId);
 }
 
 final NotifierProvider<PurchaseNotifier, PurchaseState> purchaseProvider =

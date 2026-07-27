@@ -1,8 +1,7 @@
 /// Resultado de verificar una sesión de pago en el servidor.
 ///
-/// [paid] indica si Stripe registró el pago; [reservationConfirmed] si la
-/// Edge Function logró confirmar la reserva asociada (puede ser false si el
-/// pending expiró y el cupo se revendió — caso que la UI debe informar).
+/// [reservationConfirmed] puede ser false aun con [paid] true: el pending
+/// expiró y el cupo se revendió, caso que la UI debe informar.
 class PaymentVerification {
   const PaymentVerification({
     required this.paid,
@@ -11,13 +10,4 @@ class PaymentVerification {
 
   final bool paid;
   final bool reservationConfirmed;
-
-  @override
-  bool operator ==(Object other) =>
-      other is PaymentVerification &&
-      other.paid == paid &&
-      other.reservationConfirmed == reservationConfirmed;
-
-  @override
-  int get hashCode => Object.hash(paid, reservationConfirmed);
 }

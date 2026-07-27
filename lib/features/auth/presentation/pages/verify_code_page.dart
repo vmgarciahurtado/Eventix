@@ -4,15 +4,18 @@ import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/async_error_view.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/presentation/pages/new_password_page.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
+import 'package:eventix/features/auth/presentation/providers/verify_code_provider.dart';
+import 'package:eventix/features/auth/presentation/widgets/verify_code_form.dart';
 import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// Argumentos de [VerifyCodePage], pasados vía `extra` de GoRouter.
+/// Se pasan vía `extra` de GoRouter.
 class VerifyCodeArgs {
   const VerifyCodeArgs({required this.email, required this.purpose});
 
@@ -20,49 +23,15 @@ class VerifyCodeArgs {
   final OtpPurpose purpose;
 }
 
-class VerifyCodePage extends ConsumerStatefulWidget {
+class VerifyCodePage extends ConsumerWidget {
   static const String routePath = '/verify';
 
   const VerifyCodePage({required this.args, super.key});
 
   final VerifyCodeArgs args;
 
-  @override
-  ConsumerState<VerifyCodePage> createState() => _VerifyCodePageState();
-}
-
-class _VerifyCodePageState extends ConsumerState<VerifyCodePage> {
-  /// Longitud del OTP que envía Supabase (Auth → Email OTP Length).
-  static const int _otpLength = 8;
-
-  bool _loading = false;
-  String _code = '';
-
-  Future<void> _verify() async {
-    if (_code.length < _otpLength) {
-      context.showSnack('Ingresa el código completo');
-      return;
-    }
-    setState(() => _loading = true);
-
-    final Result<void> result = await ref.read(verifyOtpProvider).call(
-      email: widget.args.email,
-      token: _code,
-      purpose: widget.args.purpose,
-    );
-    if (!mounted) return;
-
-    switch (result) {
-      case Success<void>():
-        _onVerified();
-      case FailureResult<void>(failure: final Failure failure):
-        setState(() => _loading = false);
-        context.showSnack(failure.userMessage);
-    }
-  }
-
-  void _onVerified() {
-    switch (widget.args.purpose) {
+  void _onVerified(BuildContext context) {
+    switch (args.purpose) {
       case OtpPurpose.signup:
         context.go(OnboardingPage.routePath);
       case OtpPurpose.recovery:
@@ -70,65 +39,71 @@ class _VerifyCodePageState extends ConsumerState<VerifyCodePage> {
     }
   }
 
-  Future<void> _resend() async {
-    final Result<void> result = await ref.read(resendOtpProvider).call(
-      email: widget.args.email,
-      purpose: widget.args.purpose,
-    );
-    if (!mounted) return;
-    final String message = switch (result) {
-      Success<void>() => 'Código reenviado',
-      FailureResult<void>(failure: final Failure failure) =>
-        failure.userMessage,
-    };
-    context.showSnack(message);
+  Future<void> _resend(BuildContext context, WidgetRef ref) async {
+    final Result<void> result = await ref
+        .read(verifyCodeProvider.notifier)
+        .resend(email: args.email, purpose: args.purpose);
+    if (!context.mounted) return;
+
+    context.showSnack(switch (result) {
+      Success<void>() => AppLocalizations.of(context).verify_code_resent,
+      FailureResult<void>(:final Failure failure) => failure.userMessage,
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool loading = ref.watch(verifyCodeProvider).isLoading;
+
+    ref.listen(verifyCodeProvider, (
+      AsyncValue<void>? previous,
+      AsyncValue<void> next,
+    ) {
+      switch (next) {
+        case AsyncError<void>(:final Object error):
+          context.showSnack(failureMessage(error, l10n.error_unexpected));
+        case AsyncData<void>():
+          _onVerified(context);
+        default:
+          break;
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(UiSpacing.lg),
+          padding: const EdgeInsets.all(UiSpacing.large),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Text(
-                'Verifica tu correo',
+                l10n.verify_title,
                 style: context.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: UiSpacing.xs),
+              const SizedBox(height: UiSpacing.extraSmall),
               Text(
-                'Escribe el código que enviamos a ${widget.args.email}',
+                l10n.verify_sent_to(args.email),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: UiSpacing.xl),
-              UiOtpField(
-                length: _otpLength,
-                onChanged: (String code) => _code = code,
-                onCompleted: (String code) {
-                  _code = code;
-                  unawaited(_verify());
-                },
-              ),
-              const SizedBox(height: UiSpacing.xl),
-              UiButton(
-                label: 'Verificar',
-                expanded: true,
-                loading: _loading,
-                onPressed: _verify,
-              ),
-              const SizedBox(height: UiSpacing.sm),
-              Center(
-                child: TextButton(
-                  onPressed: _loading ? null : _resend,
-                  child: const Text('Reenviar código'),
+              const SizedBox(height: UiSpacing.extraLarge),
+              VerifyCodeForm(
+                loading: loading,
+                onSubmit: (String code) => unawaited(
+                  ref
+                      .read(verifyCodeProvider.notifier)
+                      .verify(
+                        email: args.email,
+                        token: code,
+                        purpose: args.purpose,
+                      ),
                 ),
+                onResend: () => unawaited(_resend(context, ref)),
               ),
             ],
           ),

@@ -1,6 +1,5 @@
-import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/errors/supabase_guard.dart';
-import 'package:eventix/features/auth/domain/entities/otp_purpose.dart';
+import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/infrastructure/datasources/auth_datasource.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -80,22 +79,4 @@ class SupabaseAuthDatasource implements AuthDatasource {
 
   @override
   Future<void> signOut() => guardSupabaseCall(() => _auth.signOut());
-
-  @override
-  Future<Map<String, dynamic>?> fetchCurrentProfile() =>
-      guardSupabaseCall(() async {
-        final String? uid = _auth.currentUser?.id;
-        if (uid == null) return null;
-        return _client.from('profiles').select().eq('id', uid).maybeSingle();
-      });
-
-  @override
-  Future<void> completeOnboarding() => guardSupabaseCall(() async {
-    final String? uid = _auth.currentUser?.id;
-    if (uid == null) throw const UnauthorizedFailure();
-    await _client
-        .from('profiles')
-        .update(<String, dynamic>{'onboarding_completed': true})
-        .eq('id', uid);
-  });
 }

@@ -14,7 +14,7 @@ class PurchaseCompleted extends PurchaseOutcome {
 }
 
 /// Evento pago: hay una reserva pendiente reteniendo cupo y una sesión de
-/// Stripe lista para pagar.
+/// checkout lista para pagar.
 class PurchasePaymentRequired extends PurchaseOutcome {
   const PurchasePaymentRequired({
     required this.reservation,
@@ -23,17 +23,4 @@ class PurchasePaymentRequired extends PurchaseOutcome {
 
   final Reservation reservation;
   final CheckoutSession session;
-}
-
-/// Resultado de verificar el pago al volver del checkout.
-enum PaymentCompletion {
-  /// Pago verificado y reserva confirmada por el servidor.
-  confirmed,
-
-  /// Stripe no registró el pago (abandonó o falló el cobro).
-  notPaid,
-
-  /// Pago registrado pero la reserva no pudo confirmarse (p. ej. el pending
-  /// expiró y el cupo se revendió). Requiere intervención/soporte.
-  paidButNotConfirmed,
 }

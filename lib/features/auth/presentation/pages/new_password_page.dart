@@ -1,103 +1,46 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
-import 'package:eventix/core/helpers/form_validators.dart';
-import 'package:eventix/core/helpers/result.dart';
-import 'package:eventix/features/auth/presentation/pages/auth_success_page.dart';
-import 'package:eventix/features/auth/presentation/pages/login_page.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/async_error_view.dart';
+import 'package:eventix/features/auth/presentation/pages/new_password_success_page.dart';
+import 'package:eventix/features/auth/presentation/providers/new_password_provider.dart';
+import 'package:eventix/features/auth/presentation/widgets/new_password_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class NewPasswordPage extends ConsumerStatefulWidget {
+class NewPasswordPage extends ConsumerWidget {
   static const String routePath = '/new-password';
 
   const NewPasswordPage({super.key});
 
   @override
-  ConsumerState<NewPasswordPage> createState() => _NewPasswordPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool loading = ref.watch(newPasswordProvider).isLoading;
 
-class _NewPasswordPageState extends ConsumerState<NewPasswordPage> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _password = TextEditingController();
-  final TextEditingController _confirm = TextEditingController();
-  bool _loading = false;
+    ref.listen(newPasswordProvider, (
+      AsyncValue<void>? previous,
+      AsyncValue<void> next,
+    ) {
+      switch (next) {
+        case AsyncError<void>(:final Object error):
+          context.showSnack(failureMessage(error, l10n.error_unexpected));
+        case AsyncData<void>():
+          context.go(NewPasswordSuccessPage.routePath);
+        default:
+          break;
+      }
+    });
 
-  @override
-  void dispose() {
-    _password.dispose();
-    _confirm.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _loading = true);
-
-    final Result<void> result = await ref
-        .read(updatePasswordProvider)
-        .call(newPassword: _password.text);
-    if (!mounted) return;
-    setState(() => _loading = false);
-
-    switch (result) {
-      case Success<void>():
-        context.go(
-          AuthSuccessPage.routePath,
-          extra: const AuthSuccessArgs(
-            title: '¡Contraseña actualizada!',
-            message: 'Inicia sesión con tu nueva contraseña.',
-            buttonLabel: 'Ir a iniciar sesión',
-            targetRoute: LoginPage.routePath,
-            signOutFirst: true,
-          ),
-        );
-      case FailureResult<void>(failure: final Failure failure):
-        context.showSnack(failure.userMessage);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nueva contraseña')),
+      appBar: AppBar(title: Text(l10n.new_password_title)),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(UiSpacing.lg),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                UiTextField(
-                  controller: _password,
-                  label: 'Nueva contraseña',
-                  prefixIcon: Icons.lock_outline,
-                  obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  validator: FormValidators.password,
-                ),
-                const SizedBox(height: UiSpacing.md),
-                UiTextField(
-                  controller: _confirm,
-                  label: 'Confirmar contraseña',
-                  prefixIcon: Icons.lock_outline,
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  validator: (String? v) =>
-                      FormValidators.confirmPassword(v, _password.text),
-                ),
-                const SizedBox(height: UiSpacing.xl),
-                UiButton(
-                  label: 'Guardar contraseña',
-                  expanded: true,
-                  loading: _loading,
-                  onPressed: _submit,
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.all(UiSpacing.large),
+          child: NewPasswordForm(
+            loading: loading,
+            onSubmit: ref.read(newPasswordProvider.notifier).updatePassword,
           ),
         ),
       ),

@@ -10,8 +10,7 @@ class RemoteReservationModel {
   });
 
   factory RemoteReservationModel.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic>? event =
-        json['events'] as Map<String, dynamic>?;
+    final Map<String, dynamic>? event = json['events'] as Map<String, dynamic>?;
     final String? startsAt = event?['starts_at'] as String?;
     return RemoteReservationModel(
       id: json['id'] as String,

@@ -1,37 +1,15 @@
 import 'dart:async';
 
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/features/auth/presentation/providers/auth_providers.dart';
-import 'package:eventix/features/home/presentation/pages/home_page.dart';
+import 'package:eventix/core/extensions/snackbar_extension.dart';
+import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/features/events/presentation/pages/events_page.dart';
+import 'package:eventix/features/onboarding/presentation/providers/finish_onboarding_provider.dart';
+import 'package:eventix/features/onboarding/presentation/widgets/onboarding_dots.dart';
+import 'package:eventix/features/onboarding/presentation/widgets/onboarding_slide.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-class _Slide {
-  const _Slide({required this.icon, required this.title, required this.body});
-
-  final IconData icon;
-  final String title;
-  final String body;
-}
-
-const List<_Slide> _slides = <_Slide>[
-  _Slide(
-    icon: Icons.explore_outlined,
-    title: 'Descubre eventos',
-    body: 'Explora conciertos, ferias y experiencias cerca de ti.',
-  ),
-  _Slide(
-    icon: Icons.filter_alt_outlined,
-    title: 'Filtra a tu medida',
-    body: 'Encuentra eventos por categoría, fecha o ciudad.',
-  ),
-  _Slide(
-    icon: Icons.confirmation_num_outlined,
-    title: 'Reserva tus cupos',
-    body: 'Aparta tus entradas y revisa tus reservas cuando quieras.',
-  ),
-];
 
 class OnboardingPage extends ConsumerStatefulWidget {
   static const String routePath = '/onboarding';
@@ -43,9 +21,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
 }
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
+  static const Duration _pageAnimation = Duration(milliseconds: 300);
+
   final PageController _controller = PageController();
   int _index = 0;
-  bool _finishing = false;
 
   @override
   void dispose() {
@@ -53,31 +32,50 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
-  bool get _isLast => _index == _slides.length - 1;
-
-  void _next() {
-    if (_isLast) {
-      unawaited(_finish());
+  void _next({required bool isLast}) {
+    if (isLast) {
+      unawaited(ref.read(finishOnboardingProvider.notifier).finish());
       return;
     }
     unawaited(
-      _controller.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      ),
+      _controller.nextPage(duration: _pageAnimation, curve: Curves.easeOut),
     );
-  }
-
-  Future<void> _finish() async {
-    if (_finishing) return;
-    setState(() => _finishing = true);
-    await ref.read(completeOnboardingProvider).call();
-    if (!mounted) return;
-    context.go(HomePage.routePath);
   }
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final List<Widget> slides = <Widget>[
+      OnboardingSlide(
+        icon: Icons.explore_outlined,
+        title: l10n.onboarding_slide1_title,
+        body: l10n.onboarding_slide1_body,
+      ),
+      OnboardingSlide(
+        icon: Icons.filter_alt_outlined,
+        title: l10n.onboarding_slide2_title,
+        body: l10n.onboarding_slide2_body,
+      ),
+      OnboardingSlide(
+        icon: Icons.confirmation_num_outlined,
+        title: l10n.onboarding_slide3_title,
+        body: l10n.onboarding_slide3_body,
+      ),
+    ];
+    final bool isLast = _index == slides.length - 1;
+    final bool finishing = ref.watch(finishOnboardingProvider).isLoading;
+
+    ref.listen(finishOnboardingProvider, (
+      AsyncValue<void>? previous,
+      AsyncValue<void> next,
+    ) {
+      if (next.isLoading) return;
+      // Se entra igual si el guardado falló: el onboarding se puede repetir y
+      // no tiene sentido dejar al usuario atrapado aquí.
+      if (next.hasError) context.showSnack(l10n.onboarding_save_error);
+      context.go(EventsPage.routePath);
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -85,74 +83,27 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: _finishing ? null : _finish,
-                child: const Text('Saltar'),
+                onPressed: finishing
+                    ? null
+                    : ref.read(finishOnboardingProvider.notifier).finish,
+                child: Text(l10n.onboarding_skip),
               ),
             ),
             Expanded(
-              child: PageView.builder(
+              child: PageView(
                 controller: _controller,
-                itemCount: _slides.length,
                 onPageChanged: (int i) => setState(() => _index = i),
-                itemBuilder: (BuildContext context, int i) {
-                  final _Slide slide = _slides[i];
-                  return Padding(
-                    padding: const EdgeInsets.all(UiSpacing.xl),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          slide.icon,
-                          size: 120,
-                          color: context.colorScheme.primary,
-                        ),
-                        const SizedBox(height: UiSpacing.xl),
-                        Text(
-                          slide.title,
-                          textAlign: TextAlign.center,
-                          style: context.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: UiSpacing.sm),
-                        Text(
-                          slide.body,
-                          textAlign: TextAlign.center,
-                          style: context.textTheme.bodyLarge?.copyWith(
-                            color: context.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                children: slides,
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List<Widget>.generate(
-                _slides.length,
-                (int i) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: UiSpacing.xs),
-                  width: i == _index ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: i == _index
-                        ? context.colorScheme.primary
-                        : context.colorScheme.outlineVariant,
-                    borderRadius: UiRadius.borderFull,
-                  ),
-                ),
-              ),
-            ),
+            OnboardingDots(count: slides.length, index: _index),
             Padding(
-              padding: const EdgeInsets.all(UiSpacing.lg),
+              padding: const EdgeInsets.all(UiSpacing.large),
               child: UiButton(
-                label: _isLast ? 'Comenzar' : 'Siguiente',
+                label: isLast ? l10n.onboarding_start : l10n.onboarding_next,
                 expanded: true,
-                loading: _finishing,
-                onPressed: _next,
+                loading: finishing,
+                onPressed: () => _next(isLast: isLast),
               ),
             ),
           ],

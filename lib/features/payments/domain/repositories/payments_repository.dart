@@ -5,7 +5,7 @@ import 'package:eventix/features/payments/domain/entities/payment_verification.d
 abstract interface class PaymentsRepository {
   /// Crea una sesión de pago para la reserva pendiente [reservationId].
   /// Cantidad y precio son autoritativos del servidor. Si [wantInvoice] es
-  /// true, Stripe envía la factura al correo del usuario.
+  /// true, la pasarela envía la factura al correo del usuario.
   Future<Result<CheckoutSession>> createCheckout({
     required String reservationId,
     required bool wantInvoice,
