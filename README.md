@@ -300,22 +300,3 @@ doble toque de los notifiers, y el usecase transaccional `PurchaseTickets`
   equipo; la lógica de negocio real (compra, cupos, post-login) vive en domain.
 - **`app_ui_kit` como repo aparte**: el design system es reutilizable entre
   apps, así que no se copia dentro de Eventix.
-
----
-
-## Pendientes conocidos
-
-- **No hay guard de sesión en el router.** Las rutas se declaran por feature y
-  el splash decide el destino al arrancar, pero no existe `redirect` ni
-  `refreshListenable`: un deep link a `/reserve/:id` sin sesión entra sin
-  bloqueo. Es el pendiente de seguridad más alto.
-- La policy de `INSERT` de `reservations` solo valida `user_id`; `quantity` y
-  `created_at` quedan en manos del cliente.
-- El locale está fijado a `es`, así que `app_en.arb` no se alcanza en runtime, y
-  `formatPrice` imprime el símbolo detrás del monto (`95.000 $`) porque `es_CO`
-  no existe en `intl` y cae al formato de España.
-- `CheckoutWebViewPage` no tiene `PopScope`: el botón atrás de Android cancela
-  la compra entera sin preguntar.
-- Las imágenes de los eventos son hotlinks a Unsplash; lo natural para
-  producción es un bucket de Supabase Storage (cambia el valor de
-  `image_url`, no el esquema ni el código).
