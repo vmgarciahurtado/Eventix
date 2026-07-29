@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/app_logo.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
 import 'package:eventix/features/auth/presentation/pages/verify_code_page.dart';
@@ -47,9 +48,16 @@ class RegisterPage extends ConsumerWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(UiSpacing.large),
-          child: RegisterForm(
-            loading: loading,
-            onSubmit: ref.read(registerProvider.notifier).register,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const Center(child: AppLogo(width: 140)),
+              const SizedBox(height: UiSpacing.large),
+              RegisterForm(
+                loading: loading,
+                onSubmit: ref.read(registerProvider.notifier).register,
+              ),
+            ],
           ),
         ),
       ),

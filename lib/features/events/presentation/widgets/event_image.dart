@@ -1,51 +1,72 @@
-import 'package:eventix/features/events/presentation/widgets/category_visuals.dart';
+import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:flutter/material.dart';
 
-/// Imagen de un evento. Intenta cargar el asset local
-/// `assets/images/event_<imageKey>.jpg`; si no existe, cae a un degradado con
-/// el ícono de la categoría (para no depender de imágenes remotas).
+/// Etiqueta que enlaza la imagen de la tarjeta con la del detalle para que
+/// Flutter anime la transición entre las dos pantallas.
+String eventImageHeroTag(String eventId) => 'event-image-$eventId';
+
+/// Imagen de un evento, tomada de la URL que manda el backend. Si no hay URL o
+/// la descarga falla, muestra el marcador de "sin imagen".
 class EventImage extends StatelessWidget {
   const EventImage({
-    required this.imageKey,
-    required this.categoryName,
+    required this.imageUrl,
     required this.height,
-    this.iconSize = 56,
     super.key,
   });
 
-  final String? imageKey;
-  final String categoryName;
+  final String? imageUrl;
   final double height;
-  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
-    final CategoryVisual visual = categoryVisual(categoryName);
-    final Widget fallback = DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: visual.colors,
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: Center(
-        child: Icon(visual.icon, size: iconSize, color: Colors.white),
-      ),
-    );
-
-    final String? key = imageKey;
-    final Widget content = (key == null || key.isEmpty)
-        ? fallback
-        : Image.asset(
-            'assets/images/event_$key.jpg',
+    final String? url = imageUrl;
+    final Widget content = (url == null || url.isEmpty)
+        ? _NoImage(height: height)
+        : Image.network(
+            url,
             fit: BoxFit.cover,
             width: double.infinity,
             height: height,
+            // Mientras baja se deja el fondo liso: el marcador significa "no
+            // hay imagen", y mostrarlo antes de tiempo diría algo falso.
+            loadingBuilder:
+                (BuildContext _, Widget child, ImageChunkEvent? progress) =>
+                    progress == null ? child : const _Placeholder(),
             errorBuilder: (BuildContext _, Object __, StackTrace? ___) =>
-                fallback,
+                _NoImage(height: height),
           );
 
     return SizedBox(height: height, width: double.infinity, child: content);
+  }
+}
+
+/// Fondo liso que ocupa el hueco de la imagen sin afirmar nada.
+class _Placeholder extends StatelessWidget {
+  const _Placeholder();
+
+  @override
+  Widget build(BuildContext context) =>
+      ColoredBox(color: context.colorScheme.surfaceContainerHighest);
+}
+
+/// Marcador de "sin imagen". El PNG es un glifo negro, así que se tiñe: sobre
+/// el fondo oscuro de la app sería invisible tal cual viene.
+class _NoImage extends StatelessWidget {
+  const _NoImage({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: context.colorScheme.surfaceContainerHighest,
+      child: Center(
+        child: Image.asset(
+          'assets/images/no_image.png',
+          height: height * 0.35,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
   }
 }

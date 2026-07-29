@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Eventix'**
   String get app_name;
 
+  /// No description provided for @app_tagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your next party starts here'**
+  String get app_tagline;
+
   /// No description provided for @action_retry.
   ///
   /// In en, this message translates to:
@@ -133,6 +139,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Free'**
   String get common_free;
+
+  /// No description provided for @common_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get common_loading;
+
+  /// No description provided for @error_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get error_title;
 
   /// No description provided for @error_unexpected.
   ///
@@ -404,11 +422,11 @@ abstract class AppLocalizations {
   /// **'{available} of {capacity} spots available'**
   String event_spots_available(int available, int capacity);
 
-  /// No description provided for @event_spots_short.
+  /// No description provided for @event_capacity_total.
   ///
   /// In en, this message translates to:
-  /// **'{capacity} spots'**
-  String event_spots_short(int capacity);
+  /// **'Capacity: {capacity}'**
+  String event_capacity_total(Object capacity);
 
   /// No description provided for @event_description_title.
   ///
@@ -578,12 +596,6 @@ abstract class AppLocalizations {
   /// **'You\'re going to pay {amount} for {quantity} spot(s) for \"{title}\".'**
   String reserve_confirm_pay_message(String amount, int quantity, String title);
 
-  /// No description provided for @reserve_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Reservation confirmed!'**
-  String get reserve_success;
-
   /// No description provided for @reserve_cancelled.
   ///
   /// In en, this message translates to:
@@ -638,23 +650,41 @@ abstract class AppLocalizations {
   /// **'Pay {amount}'**
   String reserve_pay_button(String amount);
 
-  /// No description provided for @reserve_sold_out_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Event sold out'**
-  String get reserve_sold_out_label;
-
-  /// No description provided for @reserve_availability_loading.
+  /// No description provided for @event_availability_loading.
   ///
   /// In en, this message translates to:
   /// **'Checking availability…'**
-  String get reserve_availability_loading;
+  String get event_availability_loading;
 
-  /// No description provided for @reserve_spots_total.
+  /// No description provided for @confirmed_title_lead.
   ///
   /// In en, this message translates to:
-  /// **'{capacity} total spots'**
-  String reserve_spots_total(int capacity);
+  /// **'It\'s'**
+  String get confirmed_title_lead;
+
+  /// No description provided for @confirmed_title_highlight.
+  ///
+  /// In en, this message translates to:
+  /// **'confirmed'**
+  String get confirmed_title_highlight;
+
+  /// No description provided for @confirmed_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your spot is waiting. Find the details in My reservations.'**
+  String get confirmed_message;
+
+  /// No description provided for @confirmed_go_to_reservations.
+  ///
+  /// In en, this message translates to:
+  /// **'View my reservations'**
+  String get confirmed_go_to_reservations;
+
+  /// No description provided for @confirmed_go_to_events.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep exploring'**
+  String get confirmed_go_to_events;
 }
 
 class _AppLocalizationsDelegate

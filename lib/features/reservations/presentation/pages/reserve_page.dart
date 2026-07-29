@@ -10,7 +10,7 @@ import 'package:eventix/features/events/presentation/providers/event_by_id_provi
 import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
 import 'package:eventix/features/payments/domain/enums/checkout_result.dart';
 import 'package:eventix/features/payments/presentation/pages/checkout_web_view_page.dart';
-import 'package:eventix/features/reservations/presentation/pages/my_reservations_page.dart';
+import 'package:eventix/features/reservations/presentation/pages/reservation_confirmed_page.dart';
 import 'package:eventix/features/reservations/presentation/providers/my_reservations_provider.dart';
 import 'package:eventix/features/reservations/presentation/providers/purchase_provider.dart';
 import 'package:eventix/features/reservations/presentation/providers/purchase_state.dart';
@@ -62,8 +62,7 @@ class ReservePage extends ConsumerWidget {
       case PurchaseSuccess():
         ref.invalidate(myReservationsProvider);
         ref.invalidate(eventAvailabilityProvider(eventId));
-        context.showSnack(l10n.reserve_success);
-        context.go(MyReservationsPage.routePath);
+        context.go(ReservationConfirmedPage.routePath);
       case PurchaseCancelled():
         ref.invalidate(eventAvailabilityProvider(eventId));
         context.showSnack(l10n.reserve_cancelled);

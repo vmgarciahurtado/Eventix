@@ -1,6 +1,7 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/app_empty_state.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/core/widgets/async_view.dart';
 import 'package:eventix/features/auth/presentation/pages/login_page.dart';
@@ -73,8 +74,7 @@ class EventsPage extends ConsumerWidget {
               onRetry: () => ref.invalidate(eventsProvider),
               data: (List<Event> events) {
                 if (events.isEmpty) {
-                  return UiEmptyState(
-                    icon: Icons.event_busy_outlined,
+                  return AppEmptyState(
                     title: l10n.home_empty_title,
                     message: l10n.home_empty_message,
                   );

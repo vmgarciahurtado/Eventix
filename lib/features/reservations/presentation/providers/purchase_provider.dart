@@ -76,8 +76,6 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
     }
   }
 
-  void reset() => state = const PurchaseIdle();
-
   /// Si el borrado falla, el pending expira solo en 15 min.
   Future<void> _releasePending(String reservationId) =>
       ref.read(cancelPendingReservationProvider).call(id: reservationId);

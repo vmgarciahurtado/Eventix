@@ -13,6 +13,6 @@ abstract final class EventMapper {
     startsAt: m.startsAt,
     price: m.price,
     capacity: m.capacity,
-    imageKey: m.imageKey,
+    imageUrl: m.imageUrl,
   );
 }

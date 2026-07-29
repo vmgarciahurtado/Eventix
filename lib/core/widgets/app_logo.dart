@@ -1,23 +1,13 @@
-import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:flutter/material.dart';
 
-/// Logo de Eventix. Usa `assets/images/logo.png` si existe; si no, cae a un
-/// ícono del tema (para que la app funcione sin el asset).
+/// Lockup de marca de Eventix (símbolo + wordmark). Se dimensiona por ancho:
+/// es el wordmark el que define a partir de qué tamaño se lee.
 class AppLogo extends StatelessWidget {
-  const AppLogo({this.size = 80, super.key});
+  const AppLogo({required this.width, super.key});
 
-  final double size;
+  final double width;
 
   @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/images/logo.png',
-      height: size,
-      errorBuilder: (BuildContext _, Object __, StackTrace? ___) => Icon(
-        Icons.confirmation_num_rounded,
-        size: size,
-        color: context.colorScheme.primary,
-      ),
-    );
-  }
+  Widget build(BuildContext context) =>
+      Image.asset('assets/images/logo.png', width: width);
 }

@@ -1,10 +1,10 @@
-import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/app_loading_view.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Render estándar de un [AsyncValue]: loader centrado mientras carga,
+/// Render estándar de un [AsyncValue]: [AppLoadingView] mientras carga,
 /// [AsyncErrorView] con reintento en error y `data` con el contenido.
 ///
 /// Evita repetir `when(loading/error/data)` en cada página.
@@ -13,6 +13,7 @@ class AsyncView<T> extends StatelessWidget {
     required this.value,
     required this.data,
     this.onRetry,
+    this.loadingLabel,
     super.key,
   });
 
@@ -24,10 +25,13 @@ class AsyncView<T> extends StatelessWidget {
   /// Acción de reintento mostrada en el estado de error.
   final VoidCallback? onRetry;
 
+  /// Qué se está cargando, para la etiqueta del loader.
+  final String? loadingLabel;
+
   @override
   Widget build(BuildContext context) {
     return value.when(
-      loading: () => const Center(child: UiLoader()),
+      loading: () => AppLoadingView(label: loadingLabel),
       error: (Object error, _) => AsyncErrorView(
         message: failureMessage(
           error,

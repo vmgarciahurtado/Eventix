@@ -18,7 +18,9 @@ dependencies:
   supabase_flutter: ^2.8.0
   webview_flutter: ^4.7.0
   app_ui_kit:
-    path: ../app_ui_kit
+    git:
+      url: https://github.com/vmgarciahurtado/app_ui_kit.git
+      ref: main
 
 dev_dependencies:
   flutter_test:

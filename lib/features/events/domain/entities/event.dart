@@ -11,7 +11,7 @@ class Event {
     required this.startsAt,
     required this.price,
     required this.capacity,
-    this.imageKey,
+    this.imageUrl,
   });
 
   final String id;
@@ -24,7 +24,7 @@ class Event {
   final DateTime startsAt;
   final double price;
   final int capacity;
-  final String? imageKey;
+  final String? imageUrl;
 
   bool get isFree => price <= 0;
 }

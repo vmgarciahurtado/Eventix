@@ -10,7 +10,7 @@ class RemoteEventModel {
     required this.startsAt,
     required this.price,
     required this.capacity,
-    required this.imageKey,
+    required this.imageUrl,
   });
 
   factory RemoteEventModel.fromJson(Map<String, dynamic> json) {
@@ -28,7 +28,7 @@ class RemoteEventModel {
       startsAt: DateTime.parse(json['starts_at'] as String),
       price: (json['price'] as num?)?.toDouble() ?? 0,
       capacity: (json['capacity'] as num?)?.toInt() ?? 0,
-      imageKey: json['image_key'] as String?,
+      imageUrl: json['image_url'] as String?,
     );
   }
 
@@ -42,5 +42,5 @@ class RemoteEventModel {
   final DateTime startsAt;
   final double price;
   final int capacity;
-  final String? imageKey;
+  final String? imageUrl;
 }

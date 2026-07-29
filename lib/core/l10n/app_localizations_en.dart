@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_name => 'Eventix';
 
   @override
+  String get app_tagline => 'Your next party starts here';
+
+  @override
   String get action_retry => 'Retry';
 
   @override
@@ -25,6 +28,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_free => 'Free';
+
+  @override
+  String get common_loading => 'Loading…';
+
+  @override
+  String get error_title => 'Something went wrong';
 
   @override
   String get error_unexpected => 'An unexpected error occurred';
@@ -169,8 +178,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String event_spots_short(int capacity) {
-    return '$capacity spots';
+  String event_capacity_total(Object capacity) {
+    return 'Capacity: $capacity';
   }
 
   @override
@@ -275,9 +284,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reserve_success => 'Reservation confirmed!';
-
-  @override
   String get reserve_cancelled => 'Payment cancelled. No reservation was made.';
 
   @override
@@ -309,13 +315,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get reserve_sold_out_label => 'Event sold out';
+  String get event_availability_loading => 'Checking availability…';
 
   @override
-  String get reserve_availability_loading => 'Checking availability…';
+  String get confirmed_title_lead => 'It\'s';
 
   @override
-  String reserve_spots_total(int capacity) {
-    return '$capacity total spots';
-  }
+  String get confirmed_title_highlight => 'confirmed';
+
+  @override
+  String get confirmed_message =>
+      'Your spot is waiting. Find the details in My reservations.';
+
+  @override
+  String get confirmed_go_to_reservations => 'View my reservations';
+
+  @override
+  String get confirmed_go_to_events => 'Keep exploring';
 }

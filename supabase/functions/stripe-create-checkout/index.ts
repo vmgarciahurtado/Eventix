@@ -30,6 +30,25 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+/// Responde con el error de usuario y NO se traga la causa: la escribe en los
+/// logs de la función y la adjunta como `detail`. Sin esto, una denegación de
+/// RLS, una columna inexistente y un "cero filas" son indistinguibles.
+function fail(
+  message: string,
+  status: number,
+  cause?: { message?: string; code?: string; details?: string } | null,
+): Response {
+  if (cause) {
+    console.error(`${message} ->`, JSON.stringify(cause));
+  }
+  return json(
+    cause ? { error: message, detail: cause.message, code: cause.code } : {
+      error: message,
+    },
+    status,
+  );
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -67,20 +86,30 @@ Deno.serve(async (req: Request) => {
       .eq('id', reservationId)
       .single();
     if (resErr || !reservation) {
-      return json({ error: 'Reserva no encontrada' }, 404);
+      return fail('Reserva no encontrada', 404, resErr);
     }
     if (reservation.status !== 'pending') {
       return json({ error: 'La reserva ya fue procesada' }, 409);
     }
 
-    // Precio autoritativo desde la BD.
-    const { data: event, error: evErr } = await supabase
+    // Precio autoritativo desde la BD. Usamos service_role para garantizar lectura.
+    const supabaseAdmin = createClient(
+      SUPABASE_URL,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    const { data: event, error: evErr } = await supabaseAdmin
       .from('events')
       .select('id, title, price')
       .eq('id', reservation.event_id)
       .single();
     if (evErr || !event) {
-      return json({ error: 'Evento no encontrado' }, 404);
+      return fail('Evento no encontrado', 404, { 
+        message: evErr?.message, 
+        details: evErr?.details, 
+        code: evErr?.code,
+        debug_reservation_event_id: reservation.event_id,
+        debug_reservation_full: reservation
+      } as any);
     }
 
     const unitAmount = Math.round(Number(event.price)) * 100;

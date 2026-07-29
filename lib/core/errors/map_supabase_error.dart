@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:eventix/core/errors/failure.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Traduce los errores que lanza el cliente de Supabase a la jerarquía sellada
@@ -63,7 +64,13 @@ Failure mapSupabaseError(Object error) {
 String _functionMessage(FunctionException e) {
   final Object? details = e.details;
   if (details is Map && details['error'] is String) {
-    return details['error'] as String;
+    final String message = details['error'] as String;
+    // La causa real (RLS, columna inexistente, cero filas...) solo se muestra
+    // en debug: en release el usuario no debe ver internos del backend.
+    if (kDebugMode && details['detail'] is String) {
+      return '$message — ${details['detail']}';
+    }
+    return message;
   }
   return 'No se pudo completar la operación.';
 }

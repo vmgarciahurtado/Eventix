@@ -11,8 +11,9 @@ class VerifyCodeForm extends StatefulWidget {
     super.key,
   });
 
-  /// Debe coincidir con Auth → Email OTP Length en Supabase.
-  static const int otpLength = 6;
+  /// Único lugar donde se define el largo del código: debe coincidir con
+  /// Auth → Email OTP Length en Supabase, que hoy está en 8.
+  static const int otpLength = 8;
 
   final bool loading;
   final void Function(String code) onSubmit;
@@ -40,6 +41,7 @@ class _VerifyCodeFormState extends State<VerifyCodeForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         UiOtpField(
+          length: VerifyCodeForm.otpLength,
           onChanged: (String code) => _code = code,
           onCompleted: (String code) {
             _code = code;

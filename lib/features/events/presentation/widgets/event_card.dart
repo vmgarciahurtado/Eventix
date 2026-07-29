@@ -36,12 +36,12 @@ class EventCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: UiSpacing.extraSmall),
+                  const SizedBox(height: UiSpacing.small),
                   _IconText(
                     icon: Icons.location_on_outlined,
                     text: event.cityName,
                   ),
-                  const SizedBox(height: UiSpacing.extraExtraSmall),
+                  const SizedBox(height: UiSpacing.extraSmall),
                   _IconText(
                     icon: Icons.calendar_today_outlined,
                     text: formatEventDateTime(event.startsAt),
@@ -65,10 +65,9 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        EventImage(
-          imageKey: event.imageKey,
-          categoryName: event.categoryName,
-          height: 120,
+        Hero(
+          tag: eventImageHeroTag(event.id),
+          child: EventImage(imageUrl: event.imageUrl, height: 120),
         ),
         Positioned(
           top: UiSpacing.small,

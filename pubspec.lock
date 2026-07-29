@@ -52,10 +52,12 @@ packages:
   app_ui_kit:
     dependency: "direct main"
     description:
-      path: "../app_ui_kit"
-      relative: true
-    source: path
-    version: "0.1.0"
+      path: "."
+      ref: main
+      resolved-ref: f34c5d5bf05c91fc4763e1cab0b27e0dcae1b192
+      url: "https://github.com/vmgarciahurtado/app_ui_kit.git"
+    source: git
+    version: "0.2.0"
   archive:
     dependency: transitive
     description:

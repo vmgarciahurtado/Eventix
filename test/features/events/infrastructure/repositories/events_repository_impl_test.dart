@@ -17,12 +17,12 @@ RemoteEventModel _tEvent() => RemoteEventModel(
   description: 'Una noche increíble',
   categoryId: 1,
   cityId: 2,
-  categoryName: 'Música',
+  categoryName: 'Reggaetón',
   cityName: 'Bogotá',
   startsAt: DateTime.utc(2026, 7, 4, 20),
   price: 80000,
   capacity: 300,
-  imageKey: 'festival',
+  imageUrl: 'https://cdn.test/festival.jpg',
 );
 
 void main() {
@@ -49,7 +49,7 @@ void main() {
     final List<Event> events = (result as Success<List<Event>>).data;
     expect(events, hasLength(1));
     expect(events.first.title, 'Festival');
-    expect(events.first.categoryName, 'Música');
+    expect(events.first.categoryName, 'Reggaetón');
     expect(events.first.isFree, isFalse);
   });
 

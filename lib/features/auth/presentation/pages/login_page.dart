@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
-import 'package:eventix/core/widgets/app_logo.dart';
+import 'package:eventix/core/widgets/app_character.dart';
+import 'package:eventix/core/widgets/app_icon_badge.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
 import 'package:eventix/features/auth/domain/enums/post_auth_destination.dart';
 import 'package:eventix/features/auth/presentation/pages/register_page.dart';
@@ -17,6 +18,9 @@ import 'package:go_router/go_router.dart';
 
 class LoginPage extends ConsumerWidget {
   static const String routePath = '/login';
+
+  static const double _characterHeight = 200;
+  static const double _badgeSize = 44;
 
   const LoginPage({super.key});
 
@@ -43,57 +47,67 @@ class LoginPage extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(UiSpacing.large),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                const AppLogo(size: 72),
-                const SizedBox(height: UiSpacing.medium),
-                Text(
-                  l10n.login_welcome,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: UiSpacing.extraSmall),
-                Text(
-                  l10n.login_subtitle,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: UiSpacing.extraLarge),
-                LoginForm(
-                  loading: loading,
-                  onSubmit: ref.read(loginProvider.notifier).signIn,
-                  onForgotPassword: () => unawaited(
-                    context.push(ResetPasswordRequestPage.routePath),
-                  ),
-                ),
-                const SizedBox(height: UiSpacing.medium),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          children: <Widget>[
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(UiSpacing.large),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
+                    const Center(child: AppCharacter(height: _characterHeight)),
+                    const SizedBox(height: UiSpacing.medium),
                     Text(
-                      l10n.login_no_account,
-                      style: context.textTheme.bodyMedium,
+                      l10n.login_welcome,
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    TextButton(
-                      onPressed: loading
-                          ? null
-                          : () =>
-                                unawaited(context.push(RegisterPage.routePath)),
-                      child: Text(l10n.login_register_cta),
+                    const SizedBox(height: UiSpacing.extraSmall),
+                    Text(
+                      l10n.login_subtitle,
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: UiSpacing.extraLarge),
+                    LoginForm(
+                      loading: loading,
+                      onSubmit: ref.read(loginProvider.notifier).signIn,
+                      onForgotPassword: () => unawaited(
+                        context.push(ResetPasswordRequestPage.routePath),
+                      ),
+                    ),
+                    const SizedBox(height: UiSpacing.medium),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          l10n.login_no_account,
+                          style: context.textTheme.bodyMedium,
+                        ),
+                        TextButton(
+                          onPressed: loading
+                              ? null
+                              : () => unawaited(
+                                  context.push(RegisterPage.routePath),
+                                ),
+                          child: Text(l10n.login_register_cta),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+            const Positioned(
+              top: UiSpacing.small,
+              right: UiSpacing.large,
+              child: AppIconBadge(size: _badgeSize),
+            ),
+          ],
         ),
       ),
     );

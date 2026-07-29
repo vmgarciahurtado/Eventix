@@ -1,0 +1,15 @@
+project_id = "nomoasvbvkvfxbnqqnmh"
+
+# Sin este archivo no se puede desplegar desde el repo, y `verify_jwt` queda a
+# merced del valor por defecto de la plataforma en vez de estar declarado aquí.
+
+[functions.stripe-create-checkout]
+verify_jwt = true
+
+[functions.stripe-verify-checkout]
+verify_jwt = true
+
+# Aquí aterriza el navegador tras pagar: llega sin cabecera de sesión, así que
+# exigir JWT rompería el retorno de Stripe.
+[functions.stripe-return]
+verify_jwt = false

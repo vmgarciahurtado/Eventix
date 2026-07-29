@@ -7,12 +7,12 @@ Map<String, dynamic> _tFullJson() => <String, dynamic>{
   'description': 'Bandas independientes',
   'category_id': 1,
   'city_id': 2,
-  'categories': <String, dynamic>{'name': 'Música'},
+  'categories': <String, dynamic>{'name': 'Reggaetón'},
   'cities': <String, dynamic>{'name': 'Medellín'},
   'starts_at': '2026-07-04T20:00:00Z',
   'price': 80000,
   'capacity': 300,
-  'image_key': 'festival_indie',
+  'image_url': 'https://cdn.test/festival_indie.jpg',
 };
 
 void main() {
@@ -24,12 +24,12 @@ void main() {
       expect(model.title, 'Festival Indie');
       expect(model.categoryId, 1);
       expect(model.cityId, 2);
-      expect(model.categoryName, 'Música');
+      expect(model.categoryName, 'Reggaetón');
       expect(model.cityName, 'Medellín');
       expect(model.startsAt, DateTime.utc(2026, 7, 4, 20));
       expect(model.price, 80000.0);
       expect(model.capacity, 300);
-      expect(model.imageKey, 'festival_indie');
+      expect(model.imageUrl, 'https://cdn.test/festival_indie.jpg');
     });
 
     test('applies defaults when optional/nested fields are missing', () {
@@ -48,7 +48,7 @@ void main() {
       expect(model.cityName, '');
       expect(model.price, 0.0);
       expect(model.capacity, 0);
-      expect(model.imageKey, isNull);
+      expect(model.imageUrl, isNull);
     });
 
     test('coerces numeric price and capacity from int or double', () {

@@ -17,6 +17,8 @@ class EventDetailContent extends StatelessWidget {
     super.key,
   });
 
+  static const double _headerHeight = 200;
+
   final Event event;
   final AsyncValue<int> available;
 
@@ -24,8 +26,8 @@ class EventDetailContent extends StatelessWidget {
     data: (int a) => a <= 0
         ? l10n.common_sold_out
         : l10n.event_spots_available(a, event.capacity),
-    loading: () => l10n.event_spots_short(event.capacity),
-    error: (_, _) => l10n.event_spots_short(event.capacity),
+    loading: () => l10n.event_availability_loading,
+    error: (_, _) => l10n.event_capacity_total(event.capacity),
   );
 
   @override
@@ -37,14 +39,21 @@ class EventDetailContent extends StatelessWidget {
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: _headerHeight,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: EventImage(
-                imageKey: event.imageKey,
-                categoryName: event.categoryName,
-                height: 200,
-                iconSize: 96,
+              background: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  Hero(
+                    tag: eventImageHeroTag(event.id),
+                    child: EventImage(
+                      imageUrl: event.imageUrl,
+                      height: _headerHeight,
+                    ),
+                  ),
+                  const _TopScrim(),
+                ],
               ),
             ),
           ),
@@ -65,13 +74,10 @@ class EventDetailContent extends StatelessWidget {
                     spacing: UiSpacing.small,
                     runSpacing: UiSpacing.extraSmall,
                     children: <Widget>[
-                      Chip(label: Text(event.categoryName)),
-                      Chip(
-                        avatar: const Icon(
-                          Icons.location_on_outlined,
-                          size: 16,
-                        ),
-                        label: Text(event.cityName),
+                      UiChip(label: event.categoryName),
+                      UiChip(
+                        label: event.cityName,
+                        icon: Icons.location_on_outlined,
                       ),
                     ],
                   ),
@@ -115,6 +121,25 @@ class EventDetailContent extends StatelessWidget {
                 ? null
                 : () => context.push(ReservePage.location(event.id)),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Oscurece el borde superior de la imagen. Sin esto, el botón de volver
+/// —que es blanco— desaparece sobre las fotos claras.
+class _TopScrim extends StatelessWidget {
+  const _TopScrim();
+
+  @override
+  Widget build(BuildContext context) {
+    return const DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.center,
+          colors: <Color>[Color(0x66000000), Color(0x00000000)],
         ),
       ),
     );

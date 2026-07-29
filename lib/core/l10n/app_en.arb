@@ -1,160 +1,175 @@
 {
-    "app_name": "Eventix",
-
-    "action_retry": "Retry",
-    "action_refresh": "Refresh",
-    "action_reserve": "Reserve",
-    "common_sold_out": "Sold out",
-    "common_free": "Free",
-    "error_unexpected": "An unexpected error occurred",
-
-    "missing_env_message": "The .env file is not configured.\n\nCopy .env.example to .env in the project root and use the values shared through a private channel. Then run the app again.",
-
-    "validator_email_empty": "Enter your email",
-    "validator_email_invalid": "Invalid email",
-    "validator_password_empty": "Enter your password",
-    "validator_password_min": "At least 6 characters",
-    "validator_first_name_required": "Enter your first name",
-    "validator_last_name_required": "Enter your last name",
-    "validator_confirm_password_empty": "Confirm your password",
-    "validator_confirm_password_mismatch": "Passwords do not match",
-
-    "field_email_label": "Email",
-    "field_email_hint": "you@email.com",
-    "field_password_label": "Password",
-    "field_confirm_password_label": "Confirm password",
-
-    "login_welcome": "Welcome to Eventix",
-    "login_subtitle": "Sign in to discover events",
-    "login_forgot_password": "Forgot your password?",
-    "login_submit": "Sign in",
-    "login_no_account": "Don't have an account?",
-    "login_register_cta": "Sign up",
-
-    "register_title": "Create account",
-    "register_terms_required": "You must accept the terms and conditions",
-    "register_code_sent": "We sent a code to your email",
-    "field_first_name_label": "First name",
-    "field_last_name_label": "Last name",
-    "register_accept_terms_label": "I accept the",
-    "register_terms_link": "terms and conditions",
-    "register_submit": "Sign up",
-
-    "new_password_title": "New password",
-    "new_password_success_title": "Password updated!",
-    "new_password_success_message": "Sign in with your new password.",
-    "new_password_success_button": "Go to sign in",
-    "field_new_password_label": "New password",
-    "new_password_submit": "Save password",
-
-    "reset_password_title": "Recover password",
-    "reset_password_code_sent": "We sent you a code to reset it",
-    "reset_password_description": "Enter your email and we'll send you a code to create a new password.",
-    "reset_password_submit": "Send code",
-
-    "verify_incomplete_code": "Enter the complete code",
-    "verify_code_resent": "Code resent",
-    "verify_title": "Verify your email",
-    "verify_sent_to": "Enter the code we sent to {email}",
-    "@verify_sent_to": {
-        "placeholders": {
-            "email": { "type": "String" }
-        }
-    },
-    "verify_submit": "Verify",
-    "verify_resend": "Resend code",
-
-    "event_spots_available": "{available} of {capacity} spots available",
-    "@event_spots_available": {
-        "placeholders": {
-            "available": { "type": "int" },
-            "capacity": { "type": "int" }
-        }
-    },
-    "event_spots_short": "{capacity} spots",
-    "@event_spots_short": {
-        "placeholders": {
-            "capacity": { "type": "int" }
-        }
-    },
-    "event_description_title": "Description",
-
-    "filter_all_categories": "All",
-    "filter_city": "City",
-    "filter_date": "Date",
-    "filter_clear": "Clear filters",
-    "filter_all_cities": "All cities",
-
-    "home_logout": "Sign out",
-    "home_empty_title": "No events",
-    "home_empty_message": "We couldn't find events with these filters.",
-
-    "reservations_title": "My reservations",
-    "reservations_empty_title": "You don't have reservations yet",
-    "reservations_empty_message": "When you reserve an event it will appear here.",
-    "reservation_quantity": "{quantity} spot(s)",
-    "@reservation_quantity": {
-        "placeholders": {
-            "quantity": { "type": "int" }
-        }
-    },
-    "reservation_reserved_on": "Reserved on {date}",
-    "@reservation_reserved_on": {
-        "placeholders": {
-            "date": { "type": "String" }
-        }
-    },
-
-    "onboarding_save_error": "We couldn't save your preference: you'll see this intro again next time you enter.",
-    "onboarding_skip": "Skip",
-    "onboarding_slide1_title": "Discover events",
-    "onboarding_slide1_body": "Explore concerts, fairs and experiences near you.",
-    "onboarding_slide2_title": "Filter your way",
-    "onboarding_slide2_body": "Find events by category, date or city.",
-    "onboarding_slide3_title": "Reserve your spots",
-    "onboarding_slide3_body": "Set aside your tickets and check your reservations whenever you want.",
-    "onboarding_start": "Get started",
-    "onboarding_next": "Next",
-
-    "checkout_title": "Secure payment",
-
-    "reserve_confirm_pay_title": "Pay with Stripe",
-    "reserve_confirm_free_message": "You're going to reserve {quantity} spot(s) for \"{title}\". This event is free. Confirm?",
-    "@reserve_confirm_free_message": {
-        "placeholders": {
-            "quantity": { "type": "int" },
-            "title": { "type": "String" }
-        }
-    },
-    "reserve_confirm_pay_message": "You're going to pay {amount} for {quantity} spot(s) for \"{title}\".",
-    "@reserve_confirm_pay_message": {
-        "placeholders": {
-            "amount": { "type": "String" },
-            "quantity": { "type": "int" },
-            "title": { "type": "String" }
-        }
-    },
-    "reserve_success": "Reservation confirmed!",
-    "reserve_cancelled": "Payment cancelled. No reservation was made.",
-    "reserve_not_paid": "The payment was not completed. No reservation was made.",
-    "reserve_unconfirmed": "We received your payment but the reservation couldn't be confirmed. Write to us to resolve it.",
-    "reserve_quantity_label": "Number of spots",
-    "reserve_unit_price": "Unit price",
-    "reserve_total": "Total",
-    "reserve_invoice_option": "Send the invoice to my email",
-    "reserve_free_button": "Reserve for free",
-    "reserve_pay_button": "Pay {amount}",
-    "@reserve_pay_button": {
-        "placeholders": {
-            "amount": { "type": "String" }
-        }
-    },
-    "reserve_sold_out_label": "Event sold out",
-    "reserve_availability_loading": "Checking availability…",
-    "reserve_spots_total": "{capacity} total spots",
-    "@reserve_spots_total": {
-        "placeholders": {
-            "capacity": { "type": "int" }
-        }
+  "app_name": "Eventix",
+  "app_tagline": "Your next party starts here",
+  "action_retry": "Retry",
+  "action_refresh": "Refresh",
+  "action_reserve": "Reserve",
+  "common_sold_out": "Sold out",
+  "common_free": "Free",
+  "common_loading": "Loading…",
+  "error_title": "Something went wrong",
+  "error_unexpected": "An unexpected error occurred",
+  "missing_env_message": "The .env file is not configured.\n\nCopy .env.example to .env in the project root and use the values shared through a private channel. Then run the app again.",
+  "validator_email_empty": "Enter your email",
+  "validator_email_invalid": "Invalid email",
+  "validator_password_empty": "Enter your password",
+  "validator_password_min": "At least 6 characters",
+  "validator_first_name_required": "Enter your first name",
+  "validator_last_name_required": "Enter your last name",
+  "validator_confirm_password_empty": "Confirm your password",
+  "validator_confirm_password_mismatch": "Passwords do not match",
+  "field_email_label": "Email",
+  "field_email_hint": "you@email.com",
+  "field_password_label": "Password",
+  "field_confirm_password_label": "Confirm password",
+  "login_welcome": "Welcome to Eventix",
+  "login_subtitle": "Sign in to discover events",
+  "login_forgot_password": "Forgot your password?",
+  "login_submit": "Sign in",
+  "login_no_account": "Don't have an account?",
+  "login_register_cta": "Sign up",
+  "register_title": "Create account",
+  "register_terms_required": "You must accept the terms and conditions",
+  "register_code_sent": "We sent a code to your email",
+  "field_first_name_label": "First name",
+  "field_last_name_label": "Last name",
+  "register_accept_terms_label": "I accept the",
+  "register_terms_link": "terms and conditions",
+  "register_submit": "Sign up",
+  "new_password_title": "New password",
+  "new_password_success_title": "Password updated!",
+  "new_password_success_message": "Sign in with your new password.",
+  "new_password_success_button": "Go to sign in",
+  "field_new_password_label": "New password",
+  "new_password_submit": "Save password",
+  "reset_password_title": "Recover password",
+  "reset_password_code_sent": "We sent you a code to reset it",
+  "reset_password_description": "Enter your email and we'll send you a code to create a new password.",
+  "reset_password_submit": "Send code",
+  "verify_incomplete_code": "Enter the complete code",
+  "verify_code_resent": "Code resent",
+  "verify_title": "Verify your email",
+  "verify_sent_to": "Enter the code we sent to {email}",
+  "@verify_sent_to": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
     }
+  },
+  "verify_submit": "Verify",
+  "verify_resend": "Resend code",
+  "event_spots_available": "{available} of {capacity} spots available",
+  "@event_spots_available": {
+    "placeholders": {
+      "available": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "event_capacity_total": "Capacity: {capacity}",
+  "@event_spots_short": {
+    "placeholders": {
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "event_description_title": "Description",
+  "filter_all_categories": "All",
+  "filter_city": "City",
+  "filter_date": "Date",
+  "filter_clear": "Clear filters",
+  "filter_all_cities": "All cities",
+  "home_logout": "Sign out",
+  "home_empty_title": "No events",
+  "home_empty_message": "We couldn't find events with these filters.",
+  "reservations_title": "My reservations",
+  "reservations_empty_title": "You don't have reservations yet",
+  "reservations_empty_message": "When you reserve an event it will appear here.",
+  "reservation_quantity": "{quantity} spot(s)",
+  "@reservation_quantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "reservation_reserved_on": "Reserved on {date}",
+  "@reservation_reserved_on": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding_save_error": "We couldn't save your preference: you'll see this intro again next time you enter.",
+  "onboarding_skip": "Skip",
+  "onboarding_slide1_title": "Discover events",
+  "onboarding_slide1_body": "Explore concerts, fairs and experiences near you.",
+  "onboarding_slide2_title": "Filter your way",
+  "onboarding_slide2_body": "Find events by category, date or city.",
+  "onboarding_slide3_title": "Reserve your spots",
+  "onboarding_slide3_body": "Set aside your tickets and check your reservations whenever you want.",
+  "onboarding_start": "Get started",
+  "onboarding_next": "Next",
+  "checkout_title": "Secure payment",
+  "reserve_confirm_pay_title": "Pay with Stripe",
+  "reserve_confirm_free_message": "You're going to reserve {quantity} spot(s) for \"{title}\". This event is free. Confirm?",
+  "@reserve_confirm_free_message": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reserve_confirm_pay_message": "You're going to pay {amount} for {quantity} spot(s) for \"{title}\".",
+  "@reserve_confirm_pay_message": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reserve_cancelled": "Payment cancelled. No reservation was made.",
+  "reserve_not_paid": "The payment was not completed. No reservation was made.",
+  "reserve_unconfirmed": "We received your payment but the reservation couldn't be confirmed. Write to us to resolve it.",
+  "reserve_quantity_label": "Number of spots",
+  "reserve_unit_price": "Unit price",
+  "reserve_total": "Total",
+  "reserve_invoice_option": "Send the invoice to my email",
+  "reserve_free_button": "Reserve for free",
+  "reserve_pay_button": "Pay {amount}",
+  "@reserve_pay_button": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "event_availability_loading": "Checking availability…",
+  "@reserve_spots_total": {
+    "placeholders": {
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "confirmed_title_lead": "It's",
+  "confirmed_title_highlight": "confirmed",
+  "confirmed_message": "Your spot is waiting. Find the details in My reservations.",
+  "confirmed_go_to_reservations": "View my reservations",
+  "confirmed_go_to_events": "Keep exploring"
 }

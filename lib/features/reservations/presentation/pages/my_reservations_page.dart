@@ -1,5 +1,6 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/widgets/app_empty_state.dart';
 import 'package:eventix/core/widgets/async_view.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
 import 'package:eventix/features/reservations/presentation/providers/my_reservations_provider.dart';
@@ -35,8 +36,7 @@ class MyReservationsPage extends ConsumerWidget {
         onRetry: () => ref.invalidate(myReservationsProvider),
         data: (List<Reservation> reservations) {
           if (reservations.isEmpty) {
-            return UiEmptyState(
-              icon: Icons.confirmation_num_outlined,
+            return AppEmptyState(
               title: l10n.reservations_empty_title,
               message: l10n.reservations_empty_message,
             );

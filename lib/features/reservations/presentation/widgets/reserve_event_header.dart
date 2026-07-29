@@ -52,9 +52,9 @@ class ReserveEventHeader extends StatelessWidget {
 
   String _availabilityLabel(AppLocalizations l10n) => available.when(
     data: (int a) => a <= 0
-        ? l10n.reserve_sold_out_label
+        ? l10n.common_sold_out
         : l10n.event_spots_available(a, event.capacity),
-    loading: () => l10n.reserve_availability_loading,
-    error: (_, _) => l10n.reserve_spots_total(event.capacity),
+    loading: () => l10n.event_availability_loading,
+    error: (_, _) => l10n.event_capacity_total(event.capacity),
   );
 }
