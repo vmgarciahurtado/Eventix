@@ -6,7 +6,8 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, OnboardingPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, OnboardingPage.routePath);
 
     expect(find.byType(OnboardingPage), findsOneWidget);
     expect(find.text('Descubre eventos'), findsOneWidget);

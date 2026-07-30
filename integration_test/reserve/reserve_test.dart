@@ -12,17 +12,23 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, EventsPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, EventsPage.routePath);
     await settle(tester, timeout: const Duration(seconds: 20));
 
+    // Se afirma el catálogo antes de decidir omitir: un fallo al montar no debe
+    // disfrazarse de "no hay eventos".
+    expect(find.byType(EventsPage), findsOneWidget);
+
     if (find.byType(EventCard).evaluate().isEmpty) {
-      markTestSkipped('El catálogo real no tiene eventos que reservar');
+      markTestSkipped('El catálogo cargó pero está vacío: nada que reservar');
       return;
     }
 
     await tester.tap(find.byType(EventCard).first);
     await settle(tester, timeout: const Duration(seconds: 20));
 
+    expect(find.byType(EventDetailPage), findsOneWidget);
     if (find.widgetWithText(UiButton, 'Reservar').evaluate().isEmpty) {
       markTestSkipped('El primer evento está agotado');
       return;

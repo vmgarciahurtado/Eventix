@@ -6,9 +6,11 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, EventsPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, EventsPage.routePath);
     await settle(tester, timeout: const Duration(seconds: 20));
 
+    expect(find.byType(EventsPage), findsOneWidget);
     await tester.tap(find.byIcon(Icons.confirmation_num_outlined));
     await settle(tester, timeout: const Duration(seconds: 20));
 
@@ -35,9 +37,11 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, EventsPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, EventsPage.routePath);
     await settle(tester, timeout: const Duration(seconds: 20));
 
+    expect(find.byType(EventsPage), findsOneWidget);
     await tester.tap(find.byIcon(Icons.logout));
     await settle(tester, timeout: const Duration(seconds: 20));
 

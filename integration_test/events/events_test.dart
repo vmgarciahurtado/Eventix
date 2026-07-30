@@ -6,7 +6,8 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, EventsPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, EventsPage.routePath);
 
     expect(find.byType(EventsPage), findsOneWidget);
     await settle(tester, timeout: const Duration(seconds: 20));

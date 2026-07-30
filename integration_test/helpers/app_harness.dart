@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'test_credentials.dart';
+
 /// Arranque de la app real contra el Supabase real. Es lo que distingue estas
 /// pruebas de las de widget: acá nada está simulado, así que lo que pasa aquí
 /// es lo que le va a pasar al usuario.
@@ -33,6 +35,9 @@ Future<void> bootstrapApp() async {
 }
 
 /// Monta la app completa y espera a que el splash resuelva a dónde ir.
+///
+/// Cada `testWidgets` destruye el árbol al terminar, así que TODA prueba tiene
+/// que montar la app de nuevo: no se hereda la pantalla de la prueba anterior.
 Future<void> launchApp(WidgetTester tester) async {
   await tester.pumpWidget(const ProviderScope(child: MainApp()));
   await settle(tester);
@@ -51,10 +56,13 @@ Future<void> settle(
   }
 }
 
-/// Deja la app en [location] sin reconstruirla. Los archivos de prueba corren
-/// en secuencia sobre el mismo router, así que cada uno declara desde dónde
-/// arranca en vez de asumir dónde lo dejó el anterior.
-Future<void> goTo(WidgetTester tester, String location) async {
+/// Monta la app y la deja en [location].
+///
+/// El `appRouter` es global y conserva su ubicación entre pruebas, pero el
+/// árbol de widgets no: hay que montar y después navegar. Cada tramo declara
+/// desde dónde arranca en vez de asumir dónde lo dejó el anterior.
+Future<void> launchAt(WidgetTester tester, String location) async {
+  await tester.pumpWidget(const ProviderScope(child: MainApp()));
   appRouter.go(location);
   await settle(tester);
 }
@@ -62,9 +70,19 @@ Future<void> goTo(WidgetTester tester, String location) async {
 /// Cierra la sesión si hay una abierta, para que el flujo de autenticación
 /// empiece siempre desde el mismo estado.
 Future<void> clearSession() async {
-  if (Supabase.instance.client.auth.currentSession != null) {
-    await Supabase.instance.client.auth.signOut();
-  }
+  if (hasSession) await Supabase.instance.client.auth.signOut();
+}
+
+/// Abre sesión por API, sin pasar por la pantalla.
+///
+/// El login por UI se prueba en `login/`; los demás tramos no deberían caerse
+/// si ese falló, ni depender de que haya corrido antes.
+Future<void> ensureSignedIn() async {
+  if (hasSession) return;
+  await Supabase.instance.client.auth.signInWithPassword(
+    email: TestCredentials.email,
+    password: TestCredentials.password,
+  );
 }
 
 bool get hasSession => Supabase.instance.client.auth.currentSession != null;

@@ -133,7 +133,20 @@ contarla mide al generador.
   defecto y se recicla antes de que la prueba lea el resultado.
 
 Las de integración siguen la misma idea: un archivo por tramo del flujo y
-`main_test.dart` como único punto de entrada, que arranca la app una vez y llama
-a los demás en el orden del usuario. Comparten el `appRouter` y la sesión, así
-que cada archivo declara desde dónde arranca con `goTo(...)` en vez de asumir
-dónde lo dejó el anterior.
+`main_test.dart` como único punto de entrada, que inicializa Supabase una vez y
+llama a los demás en el orden del usuario.
+
+Dos reglas que no son obvias y que ya costaron una corrección:
+
+- **Cada prueba monta la app.** `testWidgets` destruye el árbol de widgets al
+  terminar, así que no se hereda la pantalla de la prueba anterior. Por eso
+  `launchAt(tester, ruta)` hace `pumpWidget` y después navega. El `appRouter` es
+  global y sí conserva su ubicación; el árbol no.
+- **Cada prueba se para sola.** `ensureSignedIn()` abre sesión por API si no hay
+  una. El login por pantalla se prueba en `login/`; los demás tramos no deberían
+  caerse porque ese falló ni depender de haber corrido después de él.
+
+Y un antipatrón que hay que evitar acá: omitir la prueba cuando un `find` no
+encuentra algo. Un `markTestSkipped` mal puesto convierte un fallo real en una
+omisión en verde. Los guards de "no hay eventos" van **después** de afirmar que
+la pantalla está montada.

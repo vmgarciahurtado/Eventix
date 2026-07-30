@@ -7,7 +7,7 @@ void main() {
     if (skipWithoutSession()) return;
 
     await clearSession();
-    await goTo(tester, LoginPage.routePath);
+    await launchAt(tester, LoginPage.routePath);
 
     expect(find.byType(LoginPage), findsOneWidget);
     expect(find.byType(UiTextField), findsNWidgets(2));
@@ -27,11 +27,11 @@ void main() {
     // Credenciales bien formadas pero falsas: el backend las rechaza.
     await tester.enterText(
       email,
-      'no-existe-${DateTime.now().year}@eventix.co',
+      'no-existe-${DateTime.now().microsecondsSinceEpoch}@eventix.co',
     );
     await tester.enterText(password, 'contrasena-incorrecta');
     await tester.tap(submit);
-    await settle(tester);
+    await settle(tester, timeout: const Duration(seconds: 20));
     expect(find.byType(LoginPage), findsOneWidget);
     expect(hasSession, isFalse);
 
@@ -41,7 +41,13 @@ void main() {
     await tester.tap(submit);
     await settle(tester, timeout: const Duration(seconds: 20));
 
-    expect(hasSession, isTrue);
+    expect(
+      hasSession,
+      isTrue,
+      reason:
+          'no se pudo autenticar con EVENTIX_TEST_EMAIL/PASSWORD: la cuenta '
+          'debe existir y estar verificada en Supabase',
+    );
     expect(find.byType(LoginPage), findsNothing);
     // Según el estado del perfil aterriza en el onboarding o en el catálogo.
     expect(

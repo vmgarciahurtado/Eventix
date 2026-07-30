@@ -6,11 +6,17 @@ void main() {
   ) async {
     if (skipWithoutSession()) return;
 
-    await goTo(tester, EventsPage.routePath);
+    await ensureSignedIn();
+    await launchAt(tester, EventsPage.routePath);
     await settle(tester, timeout: const Duration(seconds: 20));
 
+    // Primero se afirma que el catálogo está en pantalla. Sin esto, un fallo al
+    // montar la app se disfrazaría de "no hay eventos" y la prueba se omitiría
+    // en verde.
+    expect(find.byType(EventsPage), findsOneWidget);
+
     if (find.byType(EventCard).evaluate().isEmpty) {
-      markTestSkipped('El catálogo real no tiene eventos que abrir');
+      markTestSkipped('El catálogo cargó pero está vacío: nada que abrir');
       return;
     }
 
