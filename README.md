@@ -36,7 +36,7 @@ El recorrido completo de punta a punta, en orden:
 | Localización | `flutter_localizations` + ARB (`gen-l10n`) |
 | WebView | `webview_flutter` (hospeda el Checkout de Stripe) |
 | Animación | `lottie` (a través del kit) |
-| Tests | `flutter_test` + `mocktail` (sin codegen) |
+| Tests | `flutter_test` + `integration_test` + `mocktail` (sin codegen) |
 
 > No hay archivos `*.g.dart`: nada de `build_runner`, `retrofit`, `envied` ni
 > `riverpod_generator`. La DI es explícita por `ref.watch`.
@@ -272,15 +272,30 @@ superficies verdosas de un amarillo tan saturado. La app es **solo oscura**.
 ## Tests
 
 ```bash
-flutter test
+flutter test          # unitarias + widget
+./tool/coverage.sh    # cobertura, falla si baja de 80 %
 ```
 
-**90 tests** en 21 archivos, con `mocktail` y sin codegen. La cobertura apunta
-a la lógica que puede romperse de verdad: mapeo de errores de Supabase,
-`getOrThrow`, parsing de `fromJson` (incluidos payloads malformados), los paths
-de error de los repositorios, `EventFilter`/`ReservationStatus`, las guardas de
-doble toque de los notifiers, y el usecase transaccional `PurchaseTickets`
-(gratis vs pago, cancelación del pending, verificación del pago).
+| | Archivos | Pruebas | Cobertura |
+|---|---|---|---|
+| App | 59 | 328 | **85.4 %** |
+| Paquete `app_ui_kit` | 3 | 46 | **96.2 %** |
+| Integración | 7 + orquestador | 8 | contra Supabase real |
+
+`flutter_test` + `mocktail`, sin codegen. El criterio no fue cubrir líneas sino
+qué duele si se rompe: primero el dinero (`StartPurchase` y `PurchaseNotifier`),
+después los flujos completos con el router real, la transformación de datos y los
+estados de error.
+
+Las de integración corren la app real contra el Supabase real, con un archivo por
+tramo del flujo y `main_test.dart` como único punto de entrada:
+
+```bash
+flutter test integration_test/main_test.dart --dart-define=EVENTIX_TEST_EMAIL=... --dart-define=EVENTIX_TEST_PASSWORD=...
+```
+
+**[docs/TESTING.md](docs/TESTING.md)** detalla qué se probó y por qué, los dos
+defectos que las pruebas encontraron y qué queda fuera a propósito.
 
 ---
 
