@@ -46,8 +46,7 @@ void main() {
       .signIn(email: 'a@b.com', password: '123456');
 
   test('arranca inactivo, no cargando', () {
-    // `build` es síncrono a propósito: si devolviera un Future, el estado
-    // inicial sería AsyncLoading y el botón aparecería cargando al abrir.
+    // `build` es síncrono: un Future dejaría el botón cargando al abrir.
     final AsyncValue<PostAuthDestination?> state = container.read(
       loginProvider,
     );

@@ -17,10 +17,7 @@ void main() {
       'maps AuthRetryableFetchException (network) to ConnectionFailure '
       'before the generic AuthException branch',
       () {
-        // Es el bug que se corrigió: sin conexión, gotrue envuelve el
-        // SocketException en AuthRetryableFetchException (que extiende
-        // AuthException). Debe aterrizar como ConnectionFailure, no como
-        // AuthFailure con el texto técnico crudo.
+        // Sin conexión, gotrue envuelve el SocketException en AuthException.
         final Failure failure = mapSupabaseError(
           AuthRetryableFetchException(
             message: 'ClientException with SocketException: Failed host lookup',
@@ -55,6 +52,22 @@ void main() {
       );
       expect(failure, isA<ServerFailure>());
       expect(failure.userMessage, 'Este evento es gratuito.');
+    });
+
+    test('en debug añade el detalle técnico al mensaje', () {
+      // Las pruebas corren en debug, que es cuando la función adjunta la causa.
+      final Failure failure = mapSupabaseError(
+        const FunctionException(
+          status: 400,
+          details: <String, dynamic>{
+            'error': 'No se pudo crear el checkout.',
+            'detail': 'new row violates row-level security policy',
+          },
+        ),
+      );
+
+      expect(failure.userMessage, startsWith('No se pudo crear el checkout.'));
+      expect(failure.userMessage, contains('row-level security'));
     });
 
     test('maps FunctionException without detail to a generic message', () {

@@ -25,8 +25,16 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   flutter_lints: ^6.0.0
   mocktail: ^1.0.5
+  # Solo para pruebas: MockClient permite darle un transporte falso al
+  # SupabaseClient real y afirmar sobre la petición que sale.
+  http: ^1.2.0
+  # Solo para pruebas: sustituir WebViewPlatform por una implementación falsa,
+  # que es el camino que documenta el propio paquete.
+  webview_flutter_platform_interface: ^2.13.0
 
 flutter:
   generate: true

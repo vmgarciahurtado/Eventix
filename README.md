@@ -36,7 +36,7 @@ El recorrido completo de punta a punta, en orden:
 | Localización | `flutter_localizations` + ARB (`gen-l10n`) |
 | WebView | `webview_flutter` (hospeda el Checkout de Stripe) |
 | Animación | `lottie` (a través del kit) |
-| Tests | `flutter_test` + `mocktail` (sin codegen) |
+| Tests | `flutter_test` + `integration_test` + `mocktail` (sin codegen) |
 
 > No hay archivos `*.g.dart`: nada de `build_runner`, `retrofit`, `envied` ni
 > `riverpod_generator`. La DI es explícita por `ref.watch`.
@@ -45,45 +45,68 @@ El recorrido completo de punta a punta, en orden:
 
 ## Requisitos previos
 
-- **Flutter** con Dart SDK `^3.12.0`.
+Para compilar y correr la app:
+
+- **Flutter** con Dart SDK `^3.12.0` (probado en Flutter 3.44.2, canal stable).
 - Una cuenta/proyecto de **Supabase**.
 - (Solo para probar pagos) una cuenta de **Stripe** en modo test.
+- Para iOS: **Xcode** con las Command Line Tools y un simulador instalado.
+  Para Android: **Android SDK** con un emulador creado. `flutter doctor` debe
+  salir limpio en la plataforma que vayas a usar.
+
+Solo para las pruebas de integración, que corren sobre un dispositivo real:
+
+- Un **simulador o emulador arrancado** (o un dispositivo físico conectado).
+  Se comprueba con `flutter devices`; las pruebas usan el que esté disponible,
+  no hay ninguno fijado en el código.
+- El archivo **`.env`** en la raíz: la app arranca contra el Supabase real.
+- Una **cuenta de prueba ya verificada**. El registro pide un código por correo
+  que no se puede automatizar, así que hay que crearla una vez a mano desde la
+  app. Sus credenciales se pasan por `--dart-define` (ver
+  [docs/TESTING.md](docs/TESTING.md)); nunca van en el repositorio.
+
+Solo para el reporte de cobertura:
+
+- **lcov**, que trae `genhtml` para el reporte navegable.
+
+```bash
+brew install lcov
+```
 
 ---
 
 ## Puesta en marcha
 
-### 1. Clonar los dos repos, uno al lado del otro
+### 1. Clonar
 
-El design system se consume por **path**, así que Eventix no compila solo:
+El design system se consume **por git**, así que basta con clonar este repo:
 
 ```bash
-git clone https://github.com/vmgarciahurtado/app_ui_kit.git
 git clone https://github.com/vmgarciahurtado/Eventix.git eventix
 cd eventix && flutter pub get
-```
-
-```
-<carpeta-padre>/
-├── app_ui_kit/     ← el design system
-└── eventix/        ← esta app
 ```
 
 ```yaml
 # pubspec.yaml
 app_ui_kit:
-  path: ../app_ui_kit
+  git:
+    url: https://github.com/vmgarciahurtado/app_ui_kit.git
+    ref: main
 ```
 
-Se eligió `path` porque el kit y la app evolucionaron a la vez. Para fijar una
-versión y no depender de la carpeta hermana, basta cambiarlo por la dependencia
-git apuntando a un tag:
+El `pubspec.lock` fija el commit resuelto, así que dos clones traen exactamente
+el mismo kit. Para subir a una versión nueva del kit hay que pedirlo explícito:
+
+```bash
+flutter pub upgrade app_ui_kit
+```
+
+Para trabajar en el kit y la app a la vez, se cambia a una dependencia por path
+y se clona el kit al lado:
 
 ```yaml
 app_ui_kit:
-  git:
-    url: https://github.com/vmgarciahurtado/app_ui_kit.git
-    ref: <tag-o-commit>
+  path: ../app_ui_kit
 ```
 
 ### 2. Variables de entorno (`.env`)
@@ -272,15 +295,25 @@ superficies verdosas de un amarillo tan saturado. La app es **solo oscura**.
 ## Tests
 
 ```bash
-flutter test
+flutter test                       # unitarias + widget
+./test/scripts/coverage.sh         # cobertura, falla si baja de 80 %
 ```
 
-**90 tests** en 21 archivos, con `mocktail` y sin codegen. La cobertura apunta
-a la lógica que puede romperse de verdad: mapeo de errores de Supabase,
-`getOrThrow`, parsing de `fromJson` (incluidos payloads malformados), los paths
-de error de los repositorios, `EventFilter`/`ReservationStatus`, las guardas de
-doble toque de los notifiers, y el usecase transaccional `PurchaseTickets`
-(gratis vs pago, cancelación del pending, verificación del pago).
+| | Archivos | Pruebas | Cobertura |
+|---|---|---|---|
+| App | 80 | 491 | **99.4 %** |
+| Paquete `app_ui_kit` | 22 | 148 | **100 %** |
+| Integración | 7 + orquestador | 8 | contra Supabase real |
+
+`flutter_test` + `mocktail`, sin codegen. La cobertura requiere `lcov`.
+
+Integración, sobre un dispositivo o simulador arrancado:
+
+```bash
+flutter test integration_test/main_test.dart --dart-define=EVENTIX_TEST_EMAIL=... --dart-define=EVENTIX_TEST_PASSWORD=...
+```
+
+Detalle en **[docs/TESTING.md](docs/TESTING.md)**.
 
 ---
 

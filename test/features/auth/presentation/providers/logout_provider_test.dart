@@ -79,8 +79,7 @@ void main() {
         ),
       ]),
     );
-    // Suscripción viva: simula la pantalla de reservas todavía montada, que es
-    // el único caso donde el autoDispose no basta por sí solo.
+    // Suscripción viva: simula la pantalla de reservas todavía montada.
     container.listen(
       myReservationsProvider,
       (AsyncValue<List<Reservation>>? _, AsyncValue<List<Reservation>> __) {},
