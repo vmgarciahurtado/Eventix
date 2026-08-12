@@ -78,18 +78,16 @@ class VerifyCodePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
+              UiText(
                 l10n.verify_title,
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: UiTextStyle.headline,
+                weight: FontWeight.bold,
               ),
               const SizedBox(height: UiSpacing.extraSmall),
-              Text(
+              UiText(
                 l10n.verify_sent_to(args.email),
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                style: UiTextStyle.bodySmall,
+                color: context.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: UiSpacing.extraLarge),
               VerifyCodeForm(

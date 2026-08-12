@@ -1,8 +1,8 @@
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/domain/repositories/auth_repository.dart';
 
-class RegisterUser {
-  const RegisterUser(this._repository);
+class RegisterUserUseCase {
+  const RegisterUserUseCase(this._repository);
 
   final AuthRepository _repository;
 
@@ -11,10 +11,12 @@ class RegisterUser {
     required String password,
     required String firstName,
     required String lastName,
-  }) => _repository.register(
-    email: email,
-    password: password,
-    firstName: firstName,
-    lastName: lastName,
-  );
+  }) {
+    return _repository.register(
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+    );
+  }
 }

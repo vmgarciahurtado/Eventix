@@ -24,37 +24,36 @@ class ReserveEventHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Text(
+        UiText(
           event.title,
-          style: context.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: UiTextStyle.title,
+          weight: FontWeight.bold,
         ),
         const SizedBox(height: UiSpacing.extraSmall),
-        Text(
+        UiText(
           formatEventDateTime(event.startsAt),
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
+          style: UiTextStyle.bodySmall,
+          color: context.colorScheme.onSurfaceVariant,
         ),
         const SizedBox(height: UiSpacing.extraSmall),
-        Text(
+        UiText(
           _availabilityLabel(l10n),
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: soldOut
-                ? context.colorScheme.error
-                : context.colorScheme.onSurfaceVariant,
-          ),
+          style: UiTextStyle.bodySmall,
+          color: soldOut
+              ? context.colorScheme.error
+              : context.colorScheme.onSurfaceVariant,
         ),
       ],
     );
   }
 
-  String _availabilityLabel(AppLocalizations l10n) => available.when(
-    data: (int a) => a <= 0
-        ? l10n.common_sold_out
-        : l10n.event_spots_available(a, event.capacity),
-    loading: () => l10n.event_availability_loading,
-    error: (_, _) => l10n.event_capacity_total(event.capacity),
-  );
+  String _availabilityLabel(AppLocalizations l10n) {
+    return available.when(
+      data: (int a) => a <= 0
+          ? l10n.common_sold_out
+          : l10n.event_spots_available(a, event.capacity),
+      loading: () => l10n.event_availability_loading,
+      error: (_, _) => l10n.event_capacity_total(event.capacity),
+    );
+  }
 }

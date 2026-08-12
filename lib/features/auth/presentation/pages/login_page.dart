@@ -19,8 +19,8 @@ import 'package:go_router/go_router.dart';
 class LoginPage extends ConsumerWidget {
   static const String routePath = '/login';
 
-  static const double _characterHeight = 200;
-  static const double _badgeSize = 44;
+  static const double _characterHeight = UiSizes.size200;
+  static const double _badgeSize = UiSizes.size44;
 
   const LoginPage({super.key});
 
@@ -57,20 +57,18 @@ class LoginPage extends ConsumerWidget {
                   children: <Widget>[
                     const Center(child: AppCharacter(height: _characterHeight)),
                     const SizedBox(height: UiSpacing.medium),
-                    Text(
+                    UiText(
                       l10n.login_welcome,
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: UiTextStyle.headline,
+                      align: TextAlign.center,
+                      weight: FontWeight.bold,
                     ),
                     const SizedBox(height: UiSpacing.extraSmall),
-                    Text(
+                    UiText(
                       l10n.login_subtitle,
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colorScheme.onSurfaceVariant,
-                      ),
+                      style: UiTextStyle.bodySmall,
+                      align: TextAlign.center,
+                      color: context.colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(height: UiSpacing.extraLarge),
                     LoginForm(
@@ -84,17 +82,18 @@ class LoginPage extends ConsumerWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text(
+                        UiText(
                           l10n.login_no_account,
-                          style: context.textTheme.bodyMedium,
+                          style: UiTextStyle.bodySmall,
                         ),
-                        TextButton(
+                        UiButton(
+                          label: l10n.login_register_cta,
+                          variant: UiButtonVariant.ghost,
                           onPressed: loading
                               ? null
                               : () => unawaited(
                                   context.push(RegisterPage.routePath),
                                 ),
-                          child: Text(l10n.login_register_cta),
                         ),
                       ],
                     ),

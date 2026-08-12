@@ -54,10 +54,10 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: f34c5d5bf05c91fc4763e1cab0b27e0dcae1b192
+      resolved-ref: "97ba11425061d26f6e0711408744e5ef4e51a743"
       url: "https://github.com/vmgarciahurtado/app_ui_kit.git"
     source: git
-    version: "0.2.0"
+    version: "1.2.0"
   archive:
     dependency: transitive
     description:
@@ -402,10 +402,10 @@ packages:
     dependency: transitive
     description:
       name: lottie
-      sha256: "9f050d75e94e783537454b4f14a10f690fc24e83dab6520ef5a4bb185b6d6da3"
+      sha256: "58dda9eee3f1b1fb9d490b0161635cffe93022b3b8ca0687e3df33a53620ead2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.0"
+    version: "3.5.1"
   matcher:
     dependency: transitive
     description:
@@ -602,10 +602,10 @@ packages:
     dependency: transitive
     description:
       name: posix
-      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
+      sha256: bc1bad54ad2b735816e31f8d4600cfde6c7839975085ddfbca48b6c9f7c4044e
       url: "https://pub.dev"
     source: hosted
-    version: "6.5.0"
+    version: "6.5.2"
   postgrest:
     dependency: transitive
     description:

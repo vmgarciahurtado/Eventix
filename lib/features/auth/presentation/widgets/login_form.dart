@@ -74,9 +74,10 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: UiSpacing.small),
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton(
+            child: UiButton(
+              label: l10n.login_forgot_password,
+              variant: UiButtonVariant.ghost,
               onPressed: widget.loading ? null : widget.onForgotPassword,
-              child: Text(l10n.login_forgot_password),
             ),
           ),
           const SizedBox(height: UiSpacing.medium),

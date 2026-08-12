@@ -50,11 +50,10 @@ class ResetPasswordRequestPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Text(
+              UiText(
                 l10n.reset_password_description,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                ),
+                style: UiTextStyle.bodySmall,
+                color: context.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: UiSpacing.large),
               ResetPasswordForm(

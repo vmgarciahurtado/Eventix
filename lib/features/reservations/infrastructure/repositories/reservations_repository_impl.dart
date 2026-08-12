@@ -17,26 +17,30 @@ class ReservationsRepositoryImpl implements ReservationsRepository {
     required String eventId,
     required int quantity,
     required ReservationStatus initialStatus,
-  }) => executeRepositoryCall(() async {
-    final RemoteReservationModel model = await _datasource.createReservation(
-      eventId: eventId,
-      quantity: quantity,
-      status: initialStatus.name,
-    );
-    return ReservationMapper.toEntity(model);
-  });
-
-  @override
-  Future<Result<void>> cancelPendingReservation({required String id}) =>
-      executeRepositoryCall(
-        () => _datasource.deletePendingReservation(id: id),
+  }) {
+    return executeRepositoryCall(() async {
+      final RemoteReservationModel model = await _datasource.createReservation(
+        eventId: eventId,
+        quantity: quantity,
+        status: initialStatus.name,
       );
+      return ReservationMapper.toEntity(model);
+    });
+  }
 
   @override
-  Future<Result<List<Reservation>>> getMyReservations() =>
-      executeRepositoryCall(() async {
-        final List<RemoteReservationModel> models = await _datasource
-            .fetchMyReservations();
-        return models.map(ReservationMapper.toEntity).toList();
-      });
+  Future<Result<void>> cancelPendingReservation({required String id}) {
+    return executeRepositoryCall(
+      () => _datasource.deletePendingReservation(id: id),
+    );
+  }
+
+  @override
+  Future<Result<List<Reservation>>> getMyReservations() {
+    return executeRepositoryCall(() async {
+      final List<RemoteReservationModel> models = await _datasource
+          .fetchMyReservations();
+      return models.map(ReservationMapper.toEntity).toList();
+    });
+  }
 }

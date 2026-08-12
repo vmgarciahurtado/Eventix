@@ -5,23 +5,29 @@ class EventFilterNotifier extends Notifier<EventFilter> {
   @override
   EventFilter build() => const EventFilter();
 
-  void setCategory(int? id) => state = EventFilter(
-    categoryId: id,
-    cityId: state.cityId,
-    date: state.date,
-  );
+  void setCategory(int? id) {
+    state = EventFilter(
+      categoryId: id,
+      cityId: state.cityId,
+      date: state.date,
+    );
+  }
 
-  void setCity(int? id) => state = EventFilter(
-    categoryId: state.categoryId,
-    cityId: id,
-    date: state.date,
-  );
+  void setCity(int? id) {
+    state = EventFilter(
+      categoryId: state.categoryId,
+      cityId: id,
+      date: state.date,
+    );
+  }
 
-  void setDate(DateTime? date) => state = EventFilter(
-    categoryId: state.categoryId,
-    cityId: state.cityId,
-    date: date,
-  );
+  void setDate(DateTime? date) {
+    state = EventFilter(
+      categoryId: state.categoryId,
+      cityId: state.cityId,
+      date: date,
+    );
+  }
 
   void clear() => state = const EventFilter();
 }

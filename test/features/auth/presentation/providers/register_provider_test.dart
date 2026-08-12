@@ -1,14 +1,14 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
-import 'package:eventix/features/auth/domain/usecases/register_user.dart';
+import 'package:eventix/features/auth/domain/usecases/register_user_use_case.dart';
 import 'package:eventix/features/auth/presentation/providers/register_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockRegisterUser extends Mock implements RegisterUser {}
+class _MockRegisterUser extends Mock implements RegisterUserUseCase {}
 
 void main() {
   late _MockRegisterUser registerUser;
@@ -24,23 +24,27 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  void mockRegister(Result<void> result) => when(
-    () => registerUser.call(
-      email: any(named: 'email'),
-      password: any(named: 'password'),
-      firstName: any(named: 'firstName'),
-      lastName: any(named: 'lastName'),
-    ),
-  ).thenAnswer((_) async => result);
+  void mockRegister(Result<void> result) {
+    when(
+      () => registerUser.call(
+        email: any(named: 'email'),
+        password: any(named: 'password'),
+        firstName: any(named: 'firstName'),
+        lastName: any(named: 'lastName'),
+      ),
+    ).thenAnswer((_) async => result);
+  }
 
-  Future<void> register() => container
-      .read(registerProvider.notifier)
-      .register(
-        email: 'a@b.com',
-        password: '123456',
-        firstName: 'Ana',
-        lastName: 'Gómez',
-      );
+  Future<void> register() {
+    return container
+        .read(registerProvider.notifier)
+        .register(
+          email: 'a@b.com',
+          password: '123456',
+          firstName: 'Ana',
+          lastName: 'Gómez',
+        );
+  }
 
   test('arranca inactivo, sin email pendiente', () {
     final AsyncValue<String?> state = container.read(registerProvider);

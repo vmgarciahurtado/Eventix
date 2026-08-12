@@ -18,7 +18,10 @@ class SplashPage extends ConsumerStatefulWidget {
 }
 
 class _SplashPageState extends ConsumerState<SplashPage> {
-  static const double _logoWidth = 220;
+  static const double _logoWidth = UiSizes.size220;
+
+  /// Tracking del lema: va en mayúsculas y necesita respirar.
+  static const double _tracking = 3;
 
   @override
   void initState() {
@@ -53,13 +56,12 @@ class _SplashPageState extends ConsumerState<SplashPage> {
             children: <Widget>[
               const AppLogo(width: _logoWidth),
               const SizedBox(height: UiSpacing.large),
-              Text(
+              UiText(
                 AppLocalizations.of(context).app_tagline.toUpperCase(),
-                textAlign: TextAlign.center,
-                style: context.textTheme.labelSmall?.copyWith(
-                  color: context.colorScheme.onSurfaceVariant,
-                  letterSpacing: 3,
-                ),
+                style: UiTextStyle.label,
+                align: TextAlign.center,
+                color: context.colorScheme.onSurfaceVariant,
+                letterSpacing: _tracking,
               ),
               const SizedBox(height: UiSpacing.extraLarge),
               UiLoader(color: context.colorScheme.primary),

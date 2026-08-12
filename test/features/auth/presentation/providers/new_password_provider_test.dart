@@ -1,14 +1,14 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
-import 'package:eventix/features/auth/domain/usecases/update_password.dart';
+import 'package:eventix/features/auth/domain/usecases/update_password_use_case.dart';
 import 'package:eventix/features/auth/presentation/providers/new_password_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockUpdatePassword extends Mock implements UpdatePassword {}
+class _MockUpdatePassword extends Mock implements UpdatePasswordUseCase {}
 
 void main() {
   late _MockUpdatePassword updatePassword;

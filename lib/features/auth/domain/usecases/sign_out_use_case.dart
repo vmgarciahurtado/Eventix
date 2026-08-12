@@ -1,8 +1,8 @@
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/domain/repositories/auth_repository.dart';
 
-class SignOut {
-  const SignOut(this._repository);
+class SignOutUseCase {
+  const SignOutUseCase(this._repository);
 
   final AuthRepository _repository;
 

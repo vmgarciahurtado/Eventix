@@ -1,6 +1,7 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/errors/supabase_guard.dart';
 import 'package:eventix/features/profile/infrastructure/datasources/profile_datasource.dart';
+import 'package:eventix/features/profile/infrastructure/mappers/profile_mapper.dart';
 import 'package:eventix/features/profile/infrastructure/models/remote_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -14,25 +15,28 @@ class SupabaseProfileDatasource implements ProfileDatasource {
   final SupabaseClient _client;
 
   @override
-  Future<RemoteProfileModel?> fetchCurrentProfile() =>
-      guardSupabaseCall(() async {
-        final String? uid = _client.auth.currentUser?.id;
-        if (uid == null) throw const UnauthorizedFailure();
-        final Map<String, dynamic>? row = await _client
-            .from('profiles')
-            .select()
-            .eq('id', uid)
-            .maybeSingle();
-        return row == null ? null : RemoteProfileModel.fromJson(row);
-      });
+  Future<RemoteProfileModel?> fetchCurrentProfile() {
+    return guardSupabaseCall(() async {
+      final String? uid = _client.auth.currentUser?.id;
+      if (uid == null) throw const UnauthorizedFailure();
+      final Map<String, dynamic>? row = await _client
+          .from('profiles')
+          .select()
+          .eq('id', uid)
+          .maybeSingle();
+      return row == null ? null : ProfileMapper.fromJson(row);
+    });
+  }
 
   @override
-  Future<void> completeOnboarding() => guardSupabaseCall(() async {
-    final String? uid = _client.auth.currentUser?.id;
-    if (uid == null) throw const UnauthorizedFailure();
-    await _client
-        .from('profiles')
-        .update(<String, dynamic>{'onboarding_completed': true})
-        .eq('id', uid);
-  });
+  Future<void> completeOnboarding() {
+    return guardSupabaseCall(() async {
+      final String? uid = _client.auth.currentUser?.id;
+      if (uid == null) throw const UnauthorizedFailure();
+      await _client
+          .from('profiles')
+          .update(<String, dynamic>{'onboarding_completed': true})
+          .eq('id', uid);
+    });
+  }
 }

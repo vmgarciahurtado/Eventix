@@ -7,14 +7,15 @@ import 'package:flutter/material.dart';
 ///
 /// [fallback] se usa cuando el error no es un [Failure]; pásalo localizado
 /// (ej. `AppLocalizations.of(context).error_unexpected`).
-String failureMessage(Object error, String fallback) =>
-    error is Failure ? error.userMessage : fallback;
+String failureMessage(Object error, String fallback) {
+  return error is Failure ? error.userMessage : fallback;
+}
 
 /// Vista de error con opción de reintentar, para estados `AsyncError`.
 class AsyncErrorView extends StatelessWidget {
   const AsyncErrorView({required this.message, this.onRetry, super.key});
 
-  static const double _ringSize = 112;
+  static const double _ringSize = UiSizes.size112;
   static const double _ringTint = 0.12;
 
   final String message;
@@ -46,18 +47,17 @@ class AsyncErrorView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: UiSpacing.large),
-            Text(
+            UiText(
               l10n.error_title.toUpperCase(),
-              textAlign: TextAlign.center,
-              style: context.textTheme.headlineSmall,
+              style: UiTextStyle.headline,
+              align: TextAlign.center,
             ),
             const SizedBox(height: UiSpacing.small),
-            Text(
+            UiText(
               message,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: UiTextStyle.bodySmall,
+              align: TextAlign.center,
+              color: context.colorScheme.onSurfaceVariant,
             ),
             if (onRetry != null) ...<Widget>[
               const SizedBox(height: UiSpacing.extraLarge),

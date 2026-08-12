@@ -57,9 +57,10 @@ class _VerifyCodeFormState extends State<VerifyCodeForm> {
         ),
         const SizedBox(height: UiSpacing.small),
         Center(
-          child: TextButton(
+          child: UiButton(
+            label: l10n.verify_resend,
+            variant: UiButtonVariant.ghost,
             onPressed: widget.loading ? null : widget.onResend,
-            child: Text(l10n.verify_resend),
           ),
         ),
       ],

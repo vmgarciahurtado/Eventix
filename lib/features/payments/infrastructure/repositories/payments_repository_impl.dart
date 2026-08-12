@@ -14,17 +14,21 @@ class PaymentsRepositoryImpl implements PaymentsRepository {
   Future<Result<CheckoutSession>> createCheckout({
     required String reservationId,
     required bool wantInvoice,
-  }) => executeRepositoryCall(
-    () => _datasource.createCheckout(
-      reservationId: reservationId,
-      wantInvoice: wantInvoice,
-    ),
-  );
+  }) {
+    return executeRepositoryCall(
+      () => _datasource.createCheckout(
+        reservationId: reservationId,
+        wantInvoice: wantInvoice,
+      ),
+    );
+  }
 
   @override
   Future<Result<PaymentVerification>> verifyCheckout({
     required String sessionId,
-  }) => executeRepositoryCall(
-    () => _datasource.verifyCheckout(sessionId: sessionId),
-  );
+  }) {
+    return executeRepositoryCall(
+      () => _datasource.verifyCheckout(sessionId: sessionId),
+    );
+  }
 }

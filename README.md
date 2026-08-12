@@ -250,12 +250,14 @@ UI (.when(error:) / showFailure)                   →  failure.userMessage
 
 ## Diseño
 
-El tema se arma en `core/theme/app_theme.dart` sobre `UiKitTheme.dark` del kit,
-sobrescribiendo el `ColorScheme` para fijar los negros: Material 3 deriva
-superficies verdosas de un amarillo tan saturado. La app es **solo oscura**.
+El tema es `UiKitTheme.dark` del kit tal cual, sin configuración: colores,
+superficies y tipografía vienen del sistema de diseño. La app es **solo
+oscura**.
 
-- **Paleta** (`AppPalette`, tomada del icono): amarillo neón `#F2F04B` +
-  magenta `#E64BC8` sobre negro `#0B0709`.
+- **Paleta**: vive en el sistema de diseño (`UiPalette.dark` de `app_ui_kit`),
+  tomada del icono: amarillo neón `#F2F04B` + magenta `#E64BC8` sobre negro
+  `#0B0709`. Las superficies son explícitas en el kit porque Material 3 deriva
+  superficies verdosas de un amarillo tan saturado.
 - **Marca**: solo dos imágenes, siempre detrás de un widget de `core/widgets/`
   para que ninguna página escriba una ruta de asset. `AppLogo` usa el lockup
   (splash, registro) y `AppIconBadge` el icono (esquina del login).

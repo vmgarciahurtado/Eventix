@@ -1,14 +1,15 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/onboarding/di/onboarding_di.dart';
-import 'package:eventix/features/onboarding/domain/usecases/complete_onboarding.dart';
+import 'package:eventix/features/onboarding/domain/usecases/complete_onboarding_use_case.dart';
 import 'package:eventix/features/onboarding/presentation/providers/finish_onboarding_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockCompleteOnboarding extends Mock implements CompleteOnboarding {}
+class _MockCompleteOnboarding extends Mock
+    implements CompleteOnboardingUseCase {}
 
 void main() {
   late _MockCompleteOnboarding completeOnboarding;
@@ -24,11 +25,13 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  void mockComplete(Result<void> result) =>
-      when(completeOnboarding.call).thenAnswer((_) async => result);
+  void mockComplete(Result<void> result) {
+    when(completeOnboarding.call).thenAnswer((_) async => result);
+  }
 
-  Future<void> finish() =>
-      container.read(finishOnboardingProvider.notifier).finish();
+  Future<void> finish() {
+    return container.read(finishOnboardingProvider.notifier).finish();
+  }
 
   test('expone AsyncData al guardar con Success', () async {
     mockComplete(const Success<void>(null));

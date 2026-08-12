@@ -12,7 +12,7 @@ class AppEmptyState extends StatelessWidget {
     super.key,
   });
 
-  static const double _characterHeight = 180;
+  static const double _characterHeight = UiSizes.size180;
 
   final String title;
   final String message;
@@ -33,12 +33,11 @@ class AppEmptyState extends StatelessWidget {
             const SizedBox(height: UiSpacing.large),
             _HighlightedTitle(title: title),
             const SizedBox(height: UiSpacing.small),
-            Text(
+            UiText(
               message,
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
+              style: UiTextStyle.bodySmall,
+              align: TextAlign.center,
+              color: context.colorScheme.onSurfaceVariant,
             ),
             if (action != null) ...<Widget>[
               const SizedBox(height: UiSpacing.extraLarge),

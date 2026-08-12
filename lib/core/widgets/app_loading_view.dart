@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 class AppLoadingView extends StatelessWidget {
   const AppLoadingView({this.label, super.key});
 
+  /// Tracking de la etiqueta: más aire del habitual porque va en mayúsculas.
+  static const double _tracking = 2.4;
+
   /// Qué se está cargando. Si es null usa la etiqueta genérica.
   final String? label;
 
@@ -19,13 +22,12 @@ class AppLoadingView extends StatelessWidget {
         children: <Widget>[
           UiLoader(size: UiSize.large, color: context.colorScheme.primary),
           const SizedBox(height: UiSpacing.large),
-          Text(
+          UiText(
             text.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: context.textTheme.labelSmall?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-              letterSpacing: 2.4,
-            ),
+            style: UiTextStyle.label,
+            align: TextAlign.center,
+            color: context.colorScheme.onSurfaceVariant,
+            letterSpacing: _tracking,
           ),
         ],
       ),

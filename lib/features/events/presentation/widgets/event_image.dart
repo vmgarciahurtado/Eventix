@@ -45,8 +45,9 @@ class _Placeholder extends StatelessWidget {
   const _Placeholder();
 
   @override
-  Widget build(BuildContext context) =>
-      ColoredBox(color: context.colorScheme.surfaceContainerHighest);
+  Widget build(BuildContext context) {
+    return ColoredBox(color: context.colorScheme.surfaceContainerHighest);
+  }
 }
 
 /// Marcador de "sin imagen". El PNG es un glifo negro, así que se tiñe: sobre

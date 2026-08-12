@@ -82,11 +82,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           children: <Widget>[
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
+              child: UiButton(
+                label: l10n.onboarding_skip,
+                variant: UiButtonVariant.ghost,
                 onPressed: finishing
                     ? null
                     : ref.read(finishOnboardingProvider.notifier).finish,
-                child: Text(l10n.onboarding_skip),
               ),
             ),
             Expanded(

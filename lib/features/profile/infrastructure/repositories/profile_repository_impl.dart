@@ -12,12 +12,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileDatasource _datasource;
 
   @override
-  Future<Result<AppUser?>> currentProfile() => executeRepositoryCall(() async {
-    final RemoteProfileModel? model = await _datasource.fetchCurrentProfile();
-    return model == null ? null : ProfileMapper.toEntity(model);
-  });
+  Future<Result<AppUser?>> currentProfile() {
+    return executeRepositoryCall(() async {
+      final RemoteProfileModel? model = await _datasource.fetchCurrentProfile();
+      return model == null ? null : ProfileMapper.toEntity(model);
+    });
+  }
 
   @override
-  Future<Result<void>> completeOnboarding() =>
-      executeRepositoryCall(() => _datasource.completeOnboarding());
+  Future<Result<void>> completeOnboarding() {
+    return executeRepositoryCall(() => _datasource.completeOnboarding());
+  }
 }

@@ -11,19 +11,21 @@ import 'package:mocktail/mocktail.dart';
 
 class _MockEventsDatasource extends Mock implements EventsDatasource {}
 
-RemoteEventModel _tEvent() => RemoteEventModel(
-  id: 'evt-1',
-  title: 'Festival',
-  description: 'Una noche increíble',
-  categoryId: 1,
-  cityId: 2,
-  categoryName: 'Reggaetón',
-  cityName: 'Bogotá',
-  startsAt: DateTime.utc(2026, 7, 4, 20),
-  price: 80000,
-  capacity: 300,
-  imageUrl: 'https://cdn.test/festival.jpg',
-);
+RemoteEventModel _tEvent() {
+  return RemoteEventModel(
+    id: 'evt-1',
+    title: 'Festival',
+    description: 'Una noche increíble',
+    categoryId: 1,
+    cityId: 2,
+    categoryName: 'Reggaetón',
+    cityName: 'Bogotá',
+    startsAt: DateTime.utc(2026, 7, 4, 20),
+    price: 80000,
+    capacity: 300,
+    imageUrl: 'https://cdn.test/festival.jpg',
+  );
+}
 
 void main() {
   late _MockEventsDatasource datasource;

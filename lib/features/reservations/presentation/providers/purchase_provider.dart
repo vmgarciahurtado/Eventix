@@ -77,8 +77,9 @@ class PurchaseNotifier extends Notifier<PurchaseState> {
   }
 
   /// Si el borrado falla, el pending expira solo en 15 min.
-  Future<void> _releasePending(String reservationId) =>
-      ref.read(cancelPendingReservationProvider).call(id: reservationId);
+  Future<void> _releasePending(String reservationId) {
+    return ref.read(cancelPendingReservationProvider).call(id: reservationId);
+  }
 }
 
 final NotifierProvider<PurchaseNotifier, PurchaseState> purchaseProvider =

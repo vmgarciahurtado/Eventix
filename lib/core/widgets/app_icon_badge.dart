@@ -9,12 +9,14 @@ class AppIconBadge extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: UiRadius.borderLarge,
-    child: Image.asset(
-      'assets/images/app_icon.png',
-      width: size,
-      height: size,
-    ),
-  );
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: UiRadius.borderLarge,
+      child: Image.asset(
+        'assets/images/app_icon.png',
+        width: size,
+        height: size,
+      ),
+    );
+  }
 }

@@ -51,7 +51,7 @@ class RegisterPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              const Center(child: AppLogo(width: 140)),
+              const Center(child: AppLogo(width: UiSizes.size140)),
               const SizedBox(height: UiSpacing.large),
               RegisterForm(
                 loading: loading,

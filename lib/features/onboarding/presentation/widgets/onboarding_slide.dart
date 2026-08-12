@@ -10,7 +10,7 @@ class OnboardingSlide extends StatelessWidget {
   });
 
   /// Ilustración: más grande que cualquier token de ícono del kit.
-  static const double _iconSize = 120;
+  static const double _iconSize = UiSizes.size120;
 
   final IconData icon;
   final String title;
@@ -25,20 +25,17 @@ class OnboardingSlide extends StatelessWidget {
         children: <Widget>[
           Icon(icon, size: _iconSize, color: context.colorScheme.primary),
           const SizedBox(height: UiSpacing.extraLarge),
-          Text(
+          UiText(
             title,
-            textAlign: TextAlign.center,
-            style: context.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: UiTextStyle.headline,
+            align: TextAlign.center,
+            weight: FontWeight.bold,
           ),
           const SizedBox(height: UiSpacing.small),
-          Text(
+          UiText(
             body,
-            textAlign: TextAlign.center,
-            style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
+            align: TextAlign.center,
+            color: context.colorScheme.onSurfaceVariant,
           ),
         ],
       ),

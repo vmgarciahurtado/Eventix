@@ -1,7 +1,7 @@
 import 'package:eventix/core/services/supabase/supabase_provider.dart';
 import 'package:eventix/features/payments/domain/repositories/payments_repository.dart';
-import 'package:eventix/features/payments/domain/usecases/create_checkout_session.dart';
-import 'package:eventix/features/payments/domain/usecases/verify_checkout_session.dart';
+import 'package:eventix/features/payments/domain/usecases/create_checkout_session_use_case.dart';
+import 'package:eventix/features/payments/domain/usecases/verify_checkout_session_use_case.dart';
 import 'package:eventix/features/payments/infrastructure/datasources/payments_datasource.dart';
 import 'package:eventix/features/payments/infrastructure/datasources/supabase_payments_datasource.dart';
 import 'package:eventix/features/payments/infrastructure/repositories/payments_repository_impl.dart';
@@ -20,12 +20,14 @@ final Provider<PaymentsRepository> paymentsRepositoryProvider =
           PaymentsRepositoryImpl(ref.watch(paymentsDatasourceProvider)),
     );
 
-final Provider<CreateCheckoutSession> createCheckoutSessionProvider =
-    Provider<CreateCheckoutSession>(
-      (Ref ref) => CreateCheckoutSession(ref.watch(paymentsRepositoryProvider)),
+final Provider<CreateCheckoutSessionUseCase> createCheckoutSessionProvider =
+    Provider<CreateCheckoutSessionUseCase>(
+      (Ref ref) =>
+          CreateCheckoutSessionUseCase(ref.watch(paymentsRepositoryProvider)),
     );
 
-final Provider<VerifyCheckoutSession> verifyCheckoutSessionProvider =
-    Provider<VerifyCheckoutSession>(
-      (Ref ref) => VerifyCheckoutSession(ref.watch(paymentsRepositoryProvider)),
+final Provider<VerifyCheckoutSessionUseCase> verifyCheckoutSessionProvider =
+    Provider<VerifyCheckoutSessionUseCase>(
+      (Ref ref) =>
+          VerifyCheckoutSessionUseCase(ref.watch(paymentsRepositoryProvider)),
     );

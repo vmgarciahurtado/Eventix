@@ -17,32 +17,34 @@ class SupabasePaymentsDatasource implements PaymentsDatasource {
   Future<CheckoutSession> createCheckout({
     required String reservationId,
     required bool wantInvoice,
-  }) => guardSupabaseCall(() async {
-    final FunctionResponse res = await _client.functions.invoke(
-      'stripe-create-checkout',
-      body: <String, dynamic>{
-        'reservationId': reservationId,
-        'wantInvoice': wantInvoice,
-      },
-    );
-    final RemoteCheckoutSessionModel model =
-        RemoteCheckoutSessionModel.fromJson(
-          res.data as Map<String, dynamic>,
-        );
-    return CheckoutSessionMapper.toEntity(model);
-  });
+  }) {
+    return guardSupabaseCall(() async {
+      final FunctionResponse res = await _client.functions.invoke(
+        'stripe-create-checkout',
+        body: <String, dynamic>{
+          'reservationId': reservationId,
+          'wantInvoice': wantInvoice,
+        },
+      );
+      final RemoteCheckoutSessionModel model = CheckoutSessionMapper.fromJson(
+        res.data as Map<String, dynamic>,
+      );
+      return CheckoutSessionMapper.toEntity(model);
+    });
+  }
 
   @override
-  Future<PaymentVerification> verifyCheckout({required String sessionId}) =>
-      guardSupabaseCall(() async {
-        final FunctionResponse res = await _client.functions.invoke(
-          'stripe-verify-checkout',
-          body: <String, dynamic>{'sessionId': sessionId},
-        );
-        final RemotePaymentVerificationModel model =
-            RemotePaymentVerificationModel.fromJson(
-              res.data as Map<String, dynamic>,
-            );
-        return PaymentVerificationMapper.toEntity(model);
-      });
+  Future<PaymentVerification> verifyCheckout({required String sessionId}) {
+    return guardSupabaseCall(() async {
+      final FunctionResponse res = await _client.functions.invoke(
+        'stripe-verify-checkout',
+        body: <String, dynamic>{'sessionId': sessionId},
+      );
+      final RemotePaymentVerificationModel model =
+          PaymentVerificationMapper.fromJson(
+            res.data as Map<String, dynamic>,
+          );
+      return PaymentVerificationMapper.toEntity(model);
+    });
+  }
 }

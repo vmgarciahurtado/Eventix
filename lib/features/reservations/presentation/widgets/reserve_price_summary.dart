@@ -46,18 +46,19 @@ class _PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? labelStyle = emphasized
-        ? context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)
-        : context.textTheme.bodyLarge;
+    final UiTextStyle style = emphasized
+        ? UiTextStyle.subtitle
+        : UiTextStyle.body;
+    final FontWeight? weight = emphasized ? FontWeight.bold : null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text(label, style: labelStyle),
-        Text(
+        UiText(label, style: style, weight: weight),
+        UiText(
           value,
-          style: emphasized
-              ? labelStyle?.copyWith(color: context.colorScheme.primary)
-              : labelStyle,
+          style: style,
+          weight: weight,
+          color: emphasized ? context.colorScheme.primary : null,
         ),
       ],
     );

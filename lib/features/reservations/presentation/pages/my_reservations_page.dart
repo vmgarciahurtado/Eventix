@@ -41,9 +41,11 @@ class MyReservationsPage extends ConsumerWidget {
               message: l10n.reservations_empty_message,
             );
           }
-          return ListView.builder(
+          return ListView.separated(
             padding: const EdgeInsets.all(UiSpacing.medium),
             itemCount: reservations.length,
+            separatorBuilder: (BuildContext context, int i) =>
+                const SizedBox(height: UiSpacing.medium),
             itemBuilder: (BuildContext context, int i) =>
                 ReservationCard(reservation: reservations[i]),
           );

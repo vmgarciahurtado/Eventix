@@ -3,7 +3,7 @@ import 'package:eventix/core/helpers/money_format.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/providers/event_availability_provider.dart';
-import 'package:eventix/features/reservations/domain/usecases/start_purchase.dart';
+import 'package:eventix/features/reservations/domain/usecases/start_purchase_use_case.dart';
 import 'package:eventix/features/reservations/presentation/providers/purchase_provider.dart';
 import 'package:eventix/features/reservations/presentation/providers/purchase_state.dart';
 import 'package:eventix/features/reservations/presentation/widgets/quantity_stepper.dart';
@@ -29,11 +29,12 @@ class _ReserveFormState extends ConsumerState<ReserveForm> {
 
   /// Tope por compra: el máximo lo fija el dominio y aquí se acota a los
   /// cupos que quedan.
-  int _maxQuantity(int? available) =>
-      (available ?? StartPurchase.maxPerPurchase).clamp(
-        1,
-        StartPurchase.maxPerPurchase,
-      );
+  int _maxQuantity(int? available) {
+    return (available ?? StartPurchaseUseCase.maxPerPurchase).clamp(
+      1,
+      StartPurchaseUseCase.maxPerPurchase,
+    );
+  }
 
   Future<void> _startPurchase(int quantity, double total) async {
     final Event event = widget.event;
@@ -91,9 +92,9 @@ class _ReserveFormState extends ConsumerState<ReserveForm> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
+                UiText(
                   l10n.reserve_quantity_label,
-                  style: context.textTheme.titleMedium,
+                  style: UiTextStyle.subtitle,
                 ),
                 QuantityStepper(
                   value: quantity,

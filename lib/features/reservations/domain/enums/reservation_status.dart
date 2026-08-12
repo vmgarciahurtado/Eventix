@@ -3,13 +3,17 @@ enum ReservationStatus {
   pending,
   confirmed;
 
-  static ReservationStatus fromName(String value) => switch (value) {
-    'confirmed' => ReservationStatus.confirmed,
-    _ => ReservationStatus.pending,
-  };
+  static ReservationStatus fromName(String value) {
+    return switch (value) {
+      'confirmed' => ReservationStatus.confirmed,
+      _ => ReservationStatus.pending,
+    };
+  }
 
-  String get label => switch (this) {
-    ReservationStatus.confirmed => 'Confirmada',
-    ReservationStatus.pending => 'Pendiente',
-  };
+  String get label {
+    return switch (this) {
+      ReservationStatus.confirmed => 'Confirmada',
+      ReservationStatus.pending => 'Pendiente',
+    };
+  }
 }

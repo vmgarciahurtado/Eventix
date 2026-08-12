@@ -19,36 +19,44 @@ class EventsRepositoryImpl implements EventsRepository {
   final EventsDatasource _datasource;
 
   @override
-  Future<Result<List<Event>>> getEvents(EventFilter filter) =>
-      executeRepositoryCall(() async {
-        final List<RemoteEventModel> models = await _datasource.fetchEvents(
-          filter,
-        );
-        return models.map(EventMapper.toEntity).toList();
-      });
+  Future<Result<List<Event>>> getEvents(EventFilter filter) {
+    return executeRepositoryCall(() async {
+      final List<RemoteEventModel> models = await _datasource.fetchEvents(
+        filter,
+      );
+      return models.map(EventMapper.toEntity).toList();
+    });
+  }
 
   @override
-  Future<Result<Event>> getEventById(String id) =>
-      executeRepositoryCall(() async {
-        final RemoteEventModel model = await _datasource.fetchEventById(id);
-        return EventMapper.toEntity(model);
-      });
+  Future<Result<Event>> getEventById(String id) {
+    return executeRepositoryCall(() async {
+      final RemoteEventModel model = await _datasource.fetchEventById(id);
+      return EventMapper.toEntity(model);
+    });
+  }
 
   @override
-  Future<Result<List<Category>>> getCategories() =>
-      executeRepositoryCall(() async {
-        final List<RemoteCategoryModel> models = await _datasource
-            .fetchCategories();
-        return models.map(CategoryMapper.toEntity).toList();
-      });
+  Future<Result<List<Category>>> getCategories() {
+    return executeRepositoryCall(() async {
+      final List<RemoteCategoryModel> models = await _datasource
+          .fetchCategories();
+      return models.map(CategoryMapper.toEntity).toList();
+    });
+  }
 
   @override
-  Future<Result<List<City>>> getCities() => executeRepositoryCall(() async {
-    final List<RemoteCityModel> models = await _datasource.fetchCities();
-    return models.map(CityMapper.toEntity).toList();
-  });
+  Future<Result<List<City>>> getCities() {
+    return executeRepositoryCall(() async {
+      final List<RemoteCityModel> models = await _datasource.fetchCities();
+      return models.map(CityMapper.toEntity).toList();
+    });
+  }
 
   @override
-  Future<Result<int>> getAvailableSpots(String eventId) =>
-      executeRepositoryCall(() => _datasource.fetchAvailableSpots(eventId));
+  Future<Result<int>> getAvailableSpots(String eventId) {
+    return executeRepositoryCall(
+      () => _datasource.fetchAvailableSpots(eventId),
+    );
+  }
 }

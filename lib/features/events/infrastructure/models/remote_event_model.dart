@@ -13,25 +13,6 @@ class RemoteEventModel {
     required this.imageUrl,
   });
 
-  factory RemoteEventModel.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic>? category =
-        json['categories'] as Map<String, dynamic>?;
-    final Map<String, dynamic>? city = json['cities'] as Map<String, dynamic>?;
-    return RemoteEventModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: (json['description'] as String?) ?? '',
-      categoryId: (json['category_id'] as num?)?.toInt(),
-      cityId: (json['city_id'] as num?)?.toInt(),
-      categoryName: (category?['name'] as String?) ?? '',
-      cityName: (city?['name'] as String?) ?? '',
-      startsAt: DateTime.parse(json['starts_at'] as String),
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      capacity: (json['capacity'] as num?)?.toInt() ?? 0,
-      imageUrl: json['image_url'] as String?,
-    );
-  }
-
   final String id;
   final String title;
   final String description;

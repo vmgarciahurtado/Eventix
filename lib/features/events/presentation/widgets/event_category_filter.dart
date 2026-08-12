@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class EventCategoryFilter extends ConsumerWidget {
   const EventCategoryFilter({super.key});
 
-  static const double _height = 44;
+  static const double _height = UiSizes.size44;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

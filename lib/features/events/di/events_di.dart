@@ -1,10 +1,10 @@
 import 'package:eventix/core/services/supabase/supabase_provider.dart';
 import 'package:eventix/features/events/domain/repositories/events_repository.dart';
-import 'package:eventix/features/events/domain/usecases/get_categories.dart';
-import 'package:eventix/features/events/domain/usecases/get_cities.dart';
-import 'package:eventix/features/events/domain/usecases/get_event_availability.dart';
-import 'package:eventix/features/events/domain/usecases/get_event_by_id.dart';
-import 'package:eventix/features/events/domain/usecases/get_events.dart';
+import 'package:eventix/features/events/domain/usecases/get_categories_use_case.dart';
+import 'package:eventix/features/events/domain/usecases/get_cities_use_case.dart';
+import 'package:eventix/features/events/domain/usecases/get_event_availability_use_case.dart';
+import 'package:eventix/features/events/domain/usecases/get_event_by_id_use_case.dart';
+import 'package:eventix/features/events/domain/usecases/get_events_use_case.dart';
 import 'package:eventix/features/events/infrastructure/datasources/events_datasource.dart';
 import 'package:eventix/features/events/infrastructure/datasources/supabase_events_datasource.dart';
 import 'package:eventix/features/events/infrastructure/repositories/events_repository_impl.dart';
@@ -22,23 +22,26 @@ final Provider<EventsRepository> eventsRepositoryProvider =
       (Ref ref) => EventsRepositoryImpl(ref.watch(eventsDatasourceProvider)),
     );
 
-final Provider<GetEvents> getEventsProvider = Provider<GetEvents>(
-  (Ref ref) => GetEvents(ref.watch(eventsRepositoryProvider)),
+final Provider<GetEventsUseCase> getEventsProvider = Provider<GetEventsUseCase>(
+  (Ref ref) => GetEventsUseCase(ref.watch(eventsRepositoryProvider)),
 );
 
-final Provider<GetEventById> getEventByIdProvider = Provider<GetEventById>(
-  (Ref ref) => GetEventById(ref.watch(eventsRepositoryProvider)),
+final Provider<GetEventByIdUseCase> getEventByIdProvider =
+    Provider<GetEventByIdUseCase>(
+      (Ref ref) => GetEventByIdUseCase(ref.watch(eventsRepositoryProvider)),
+    );
+
+final Provider<GetCategoriesUseCase> getCategoriesProvider =
+    Provider<GetCategoriesUseCase>(
+      (Ref ref) => GetCategoriesUseCase(ref.watch(eventsRepositoryProvider)),
+    );
+
+final Provider<GetCitiesUseCase> getCitiesProvider = Provider<GetCitiesUseCase>(
+  (Ref ref) => GetCitiesUseCase(ref.watch(eventsRepositoryProvider)),
 );
 
-final Provider<GetCategories> getCategoriesProvider = Provider<GetCategories>(
-  (Ref ref) => GetCategories(ref.watch(eventsRepositoryProvider)),
-);
-
-final Provider<GetCities> getCitiesProvider = Provider<GetCities>(
-  (Ref ref) => GetCities(ref.watch(eventsRepositoryProvider)),
-);
-
-final Provider<GetEventAvailability> getEventAvailabilityProvider =
-    Provider<GetEventAvailability>(
-      (Ref ref) => GetEventAvailability(ref.watch(eventsRepositoryProvider)),
+final Provider<GetEventAvailabilityUseCase> getEventAvailabilityProvider =
+    Provider<GetEventAvailabilityUseCase>(
+      (Ref ref) =>
+          GetEventAvailabilityUseCase(ref.watch(eventsRepositoryProvider)),
     );

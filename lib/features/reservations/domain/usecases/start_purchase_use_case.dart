@@ -1,28 +1,28 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/payments/domain/entities/checkout_session.dart';
-import 'package:eventix/features/payments/domain/usecases/create_checkout_session.dart';
+import 'package:eventix/features/payments/domain/usecases/create_checkout_session_use_case.dart';
 import 'package:eventix/features/reservations/domain/entities/purchase_outcome.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
 import 'package:eventix/features/reservations/domain/enums/reservation_status.dart';
-import 'package:eventix/features/reservations/domain/usecases/cancel_pending_reservation.dart';
-import 'package:eventix/features/reservations/domain/usecases/create_reservation.dart';
+import 'package:eventix/features/reservations/domain/usecases/cancel_pending_reservation_use_case.dart';
+import 'package:eventix/features/reservations/domain/usecases/create_reservation_use_case.dart';
 
 /// Si el checkout no puede crearse, cancela la reserva pendiente para no
 /// dejar cupo retenido. Los eventos gratuitos nacen `confirmed`: el backend
 /// valida que lo sean antes de aceptar ese insert.
-class StartPurchase {
-  const StartPurchase({
-    required CreateReservation createReservation,
-    required CancelPendingReservation cancelPendingReservation,
-    required CreateCheckoutSession createCheckout,
+class StartPurchaseUseCase {
+  const StartPurchaseUseCase({
+    required CreateReservationUseCase createReservation,
+    required CancelPendingReservationUseCase cancelPendingReservation,
+    required CreateCheckoutSessionUseCase createCheckout,
   }) : _createReservation = createReservation,
        _cancelPendingReservation = cancelPendingReservation,
        _createCheckout = createCheckout;
 
-  final CreateReservation _createReservation;
-  final CancelPendingReservation _cancelPendingReservation;
-  final CreateCheckoutSession _createCheckout;
+  final CreateReservationUseCase _createReservation;
+  final CancelPendingReservationUseCase _cancelPendingReservation;
+  final CreateCheckoutSessionUseCase _createCheckout;
 
   /// Tope de cupos por compra (regla de negocio, no de UI).
   static const int maxPerPurchase = 10;

@@ -1,21 +1,21 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
-import 'package:eventix/features/auth/domain/usecases/sign_out.dart';
+import 'package:eventix/features/auth/domain/usecases/sign_out_use_case.dart';
 import 'package:eventix/features/auth/presentation/providers/logout_provider.dart';
 import 'package:eventix/features/reservations/di/reservations_di.dart';
 import 'package:eventix/features/reservations/domain/entities/reservation.dart';
 import 'package:eventix/features/reservations/domain/enums/reservation_status.dart';
-import 'package:eventix/features/reservations/domain/usecases/get_my_reservations.dart';
+import 'package:eventix/features/reservations/domain/usecases/get_my_reservations_use_case.dart';
 import 'package:eventix/features/reservations/presentation/providers/my_reservations_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSignOut extends Mock implements SignOut {}
+class _MockSignOut extends Mock implements SignOutUseCase {}
 
-class _MockGetMyReservations extends Mock implements GetMyReservations {}
+class _MockGetMyReservations extends Mock implements GetMyReservationsUseCase {}
 
 void main() {
   late _MockSignOut signOut;
@@ -34,8 +34,9 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  void mockSignOut(Result<void> result) =>
-      when(signOut.call).thenAnswer((_) async => result);
+  void mockSignOut(Result<void> result) {
+    when(signOut.call).thenAnswer((_) async => result);
+  }
 
   Future<void> logout() => container.read(logoutProvider.notifier).logout();
 

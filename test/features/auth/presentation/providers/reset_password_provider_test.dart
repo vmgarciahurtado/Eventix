@@ -1,14 +1,14 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
-import 'package:eventix/features/auth/domain/usecases/send_password_reset.dart';
+import 'package:eventix/features/auth/domain/usecases/send_password_reset_use_case.dart';
 import 'package:eventix/features/auth/presentation/providers/reset_password_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockSendPasswordReset extends Mock implements SendPasswordReset {}
+class _MockSendPasswordReset extends Mock implements SendPasswordResetUseCase {}
 
 void main() {
   late _MockSendPasswordReset sendPasswordReset;
@@ -24,13 +24,17 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  void mockSend(Result<void> result) => when(
-    () => sendPasswordReset.call(email: any(named: 'email')),
-  ).thenAnswer((_) async => result);
+  void mockSend(Result<void> result) {
+    when(
+      () => sendPasswordReset.call(email: any(named: 'email')),
+    ).thenAnswer((_) async => result);
+  }
 
-  Future<void> sendResetCode() => container
-      .read(resetPasswordProvider.notifier)
-      .sendResetCode(email: 'a@b.com');
+  Future<void> sendResetCode() {
+    return container
+        .read(resetPasswordProvider.notifier)
+        .sendResetCode(email: 'a@b.com');
+  }
 
   test('expone el email al que se envió el código cuando funciona', () async {
     mockSend(const Success<void>(null));

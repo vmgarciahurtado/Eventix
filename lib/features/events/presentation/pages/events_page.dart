@@ -79,9 +79,11 @@ class EventsPage extends ConsumerWidget {
                     message: l10n.home_empty_message,
                   );
                 }
-                return ListView.builder(
+                return ListView.separated(
                   padding: const EdgeInsets.all(UiSpacing.medium),
                   itemCount: events.length,
+                  separatorBuilder: (BuildContext context, int i) =>
+                      const SizedBox(height: UiSpacing.medium),
                   itemBuilder: (BuildContext context, int i) => EventCard(
                     event: events[i],
                     onTap: () =>

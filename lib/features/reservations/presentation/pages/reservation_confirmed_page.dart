@@ -13,9 +13,9 @@ class ReservationConfirmedPage extends StatelessWidget {
 
   const ReservationConfirmedPage({super.key});
 
-  static const double _badgeSize = 96;
+  static const double _badgeSize = UiSizes.size96;
   static const double _glowTint = 0.28;
-  static const double _glowSpread = 28;
+  static const double _glowSpread = UiSizes.size28;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class ReservationConfirmedPage extends StatelessWidget {
                     child: const Icon(
                       Icons.check_rounded,
                       size: UiIconSize.extraLarge,
-                      color: Colors.black,
+                      color: UiColors.black,
                     ),
                   ),
                 ),
@@ -69,12 +69,10 @@ class ReservationConfirmedPage extends StatelessWidget {
                   style: context.textTheme.displaySmall,
                 ),
                 const SizedBox(height: UiSpacing.medium),
-                Text(
+                UiText(
                   l10n.confirmed_message,
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.bodyLarge?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
+                  align: TextAlign.center,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(height: UiSpacing.extraExtraLarge),
                 UiButton(

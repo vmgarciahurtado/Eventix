@@ -29,7 +29,7 @@ class QuantityStepper extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: UiSpacing.medium),
-          child: Text('$value', style: context.textTheme.titleLarge),
+          child: UiText('$value', style: UiTextStyle.title),
         ),
         IconButton.filledTonal(
           icon: const Icon(Icons.add),

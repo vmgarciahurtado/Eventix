@@ -1,22 +1,22 @@
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/payments/domain/entities/payment_verification.dart';
-import 'package:eventix/features/payments/domain/usecases/verify_checkout_session.dart';
+import 'package:eventix/features/payments/domain/usecases/verify_checkout_session_use_case.dart';
 import 'package:eventix/features/reservations/domain/enums/payment_completion.dart';
-import 'package:eventix/features/reservations/domain/usecases/complete_payment.dart';
+import 'package:eventix/features/reservations/domain/usecases/complete_payment_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockVerifyCheckoutSession extends Mock
-    implements VerifyCheckoutSession {}
+    implements VerifyCheckoutSessionUseCase {}
 
 void main() {
   late _MockVerifyCheckoutSession verifyCheckout;
-  late CompletePayment usecase;
+  late CompletePaymentUseCase usecase;
 
   setUp(() {
     verifyCheckout = _MockVerifyCheckoutSession();
-    usecase = CompletePayment(verifyCheckout);
+    usecase = CompletePaymentUseCase(verifyCheckout);
   });
 
   test('maps a paid + confirmed verification to confirmed', () async {

@@ -4,7 +4,6 @@ import 'package:eventix/core/helpers/money_format.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
 import 'package:eventix/features/events/presentation/widgets/event_image.dart';
-import 'package:eventix/features/events/presentation/widgets/event_info_row.dart';
 import 'package:eventix/features/reservations/presentation/pages/reserve_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,18 +16,20 @@ class EventDetailContent extends StatelessWidget {
     super.key,
   });
 
-  static const double _headerHeight = 200;
+  static const double _headerHeight = UiSizes.size200;
 
   final Event event;
   final AsyncValue<int> available;
 
-  String _spotsLabel(AppLocalizations l10n) => available.when(
-    data: (int a) => a <= 0
-        ? l10n.common_sold_out
-        : l10n.event_spots_available(a, event.capacity),
-    loading: () => l10n.event_availability_loading,
-    error: (_, _) => l10n.event_capacity_total(event.capacity),
-  );
+  String _spotsLabel(AppLocalizations l10n) {
+    return available.when(
+      data: (int a) => a <= 0
+          ? l10n.common_sold_out
+          : l10n.event_spots_available(a, event.capacity),
+      loading: () => l10n.event_availability_loading,
+      error: (_, _) => l10n.event_capacity_total(event.capacity),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +64,10 @@ class EventDetailContent extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
+                  UiText(
                     event.title,
-                    style: context.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: UiTextStyle.headline,
+                    weight: FontWeight.bold,
                   ),
                   const SizedBox(height: UiSpacing.small),
                   Wrap(
@@ -82,29 +82,37 @@ class EventDetailContent extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: UiSpacing.medium),
-                  EventInfoRow(
+                  UiIconText(
                     icon: Icons.calendar_today_outlined,
                     text: formatEventDateTime(event.startsAt),
+                    size: UiSize.medium,
+                    iconColor: context.colorScheme.primary,
+                    textColor: context.colorScheme.onSurface,
                   ),
                   const SizedBox(height: UiSpacing.small),
-                  EventInfoRow(
+                  UiIconText(
                     icon: Icons.confirmation_num_outlined,
                     text: formatPrice(event.price, freeLabel: l10n.common_free),
+                    size: UiSize.medium,
+                    iconColor: context.colorScheme.primary,
+                    textColor: context.colorScheme.onSurface,
                   ),
                   const SizedBox(height: UiSpacing.small),
-                  EventInfoRow(
+                  UiIconText(
                     icon: Icons.people_outline,
                     text: _spotsLabel(l10n),
+                    size: UiSize.medium,
+                    iconColor: context.colorScheme.primary,
+                    textColor: context.colorScheme.onSurface,
                   ),
                   const SizedBox(height: UiSpacing.large),
-                  Text(
+                  UiText(
                     l10n.event_description_title,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: UiTextStyle.subtitle,
+                    weight: FontWeight.bold,
                   ),
                   const SizedBox(height: UiSpacing.extraSmall),
-                  Text(event.description, style: context.textTheme.bodyLarge),
+                  UiText(event.description),
                 ],
               ),
             ),
@@ -132,14 +140,20 @@ class EventDetailContent extends StatelessWidget {
 class _TopScrim extends StatelessWidget {
   const _TopScrim();
 
+  /// Opacidad del velo en el borde superior, donde va el botón de volver.
+  static const double _veil = 0.4;
+
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.center,
-          colors: <Color>[Color(0x66000000), Color(0x00000000)],
+          colors: <Color>[
+            UiColors.black.withValues(alpha: _veil),
+            UiColors.black.withValues(alpha: 0),
+          ],
         ),
       ),
     );

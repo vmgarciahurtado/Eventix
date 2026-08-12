@@ -10,15 +10,17 @@ import 'package:mocktail/mocktail.dart';
 class _MockReservationsDatasource extends Mock
     implements ReservationsDatasource {}
 
-RemoteReservationModel _tReservation() => RemoteReservationModel(
-  id: 'res-1',
-  eventId: 'evt-1',
-  quantity: 2,
-  status: 'confirmed',
-  createdAt: DateTime.utc(2026, 6, 29),
-  eventTitle: 'Festival',
-  eventStartsAt: DateTime.utc(2026, 7, 4, 20),
-);
+RemoteReservationModel _tReservation() {
+  return RemoteReservationModel(
+    id: 'res-1',
+    eventId: 'evt-1',
+    quantity: 2,
+    status: 'confirmed',
+    createdAt: DateTime.utc(2026, 6, 29),
+    eventTitle: 'Festival',
+    eventStartsAt: DateTime.utc(2026, 7, 4, 20),
+  );
+}
 
 void main() {
   late _MockReservationsDatasource datasource;

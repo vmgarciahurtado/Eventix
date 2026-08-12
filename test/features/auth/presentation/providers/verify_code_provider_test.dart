@@ -2,17 +2,17 @@ import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
 import 'package:eventix/features/auth/domain/enums/otp_purpose.dart';
-import 'package:eventix/features/auth/domain/usecases/resend_otp.dart';
-import 'package:eventix/features/auth/domain/usecases/verify_otp.dart';
+import 'package:eventix/features/auth/domain/usecases/resend_otp_use_case.dart';
+import 'package:eventix/features/auth/domain/usecases/verify_otp_use_case.dart';
 import 'package:eventix/features/auth/presentation/providers/verify_code_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockVerifyOtp extends Mock implements VerifyOtp {}
+class _MockVerifyOtp extends Mock implements VerifyOtpUseCase {}
 
-class _MockResendOtp extends Mock implements ResendOtp {}
+class _MockResendOtp extends Mock implements ResendOtpUseCase {}
 
 void main() {
   late _MockVerifyOtp verifyOtp;
@@ -33,13 +33,15 @@ void main() {
     addTearDown(container.dispose);
   });
 
-  Future<void> verifyCode() => container
-      .read(verifyCodeProvider.notifier)
-      .verify(
-        email: 'a@b.com',
-        token: '123456',
-        purpose: OtpPurpose.signup,
-      );
+  Future<void> verifyCode() {
+    return container
+        .read(verifyCodeProvider.notifier)
+        .verify(
+          email: 'a@b.com',
+          token: '123456',
+          purpose: OtpPurpose.signup,
+        );
+  }
 
   test('expone AsyncData al verificar con Success', () async {
     when(

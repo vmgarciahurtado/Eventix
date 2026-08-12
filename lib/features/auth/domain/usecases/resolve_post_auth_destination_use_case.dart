@@ -6,8 +6,8 @@ import 'package:eventix/features/profile/domain/repositories/profile_repository.
 
 /// Sin sesión va al login; con sesión, a Home o al onboarding según lo haya
 /// completado.
-class ResolvePostAuthDestination {
-  const ResolvePostAuthDestination(this._repository);
+class ResolvePostAuthDestinationUseCase {
+  const ResolvePostAuthDestinationUseCase(this._repository);
 
   final ProfileRepository _repository;
 

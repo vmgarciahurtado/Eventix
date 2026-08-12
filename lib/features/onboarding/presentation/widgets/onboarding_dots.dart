@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class OnboardingDots extends StatelessWidget {
   const OnboardingDots({required this.count, required this.index, super.key});
 
-  static const double _dotSize = 8;
-  static const double _activeWidth = 24;
+  static const double _dotSize = UiSizes.size8;
+  static const double _activeWidth = UiSizes.size24;
   static const Duration _animation = Duration(milliseconds: 250);
 
   final int count;

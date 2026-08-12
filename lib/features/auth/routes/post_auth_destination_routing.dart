@@ -4,9 +4,11 @@ import 'package:eventix/features/events/presentation/pages/events_page.dart';
 import 'package:eventix/features/onboarding/presentation/pages/onboarding_page.dart';
 
 extension PostAuthDestinationRouting on PostAuthDestination {
-  String get routePath => switch (this) {
-    PostAuthDestination.login => LoginPage.routePath,
-    PostAuthDestination.home => EventsPage.routePath,
-    PostAuthDestination.onboarding => OnboardingPage.routePath,
-  };
+  String get routePath {
+    return switch (this) {
+      PostAuthDestination.login => LoginPage.routePath,
+      PostAuthDestination.home => EventsPage.routePath,
+      PostAuthDestination.onboarding => OnboardingPage.routePath,
+    };
+  }
 }
