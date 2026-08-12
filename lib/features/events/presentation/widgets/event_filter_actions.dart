@@ -1,6 +1,8 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/helpers/date_format.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/features/app_config/domain/entities/filters_config.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/events/domain/entities/city.dart';
 import 'package:eventix/features/events/domain/entities/event_filter.dart';
 import 'package:eventix/features/events/presentation/providers/cities_provider.dart';
@@ -17,6 +19,12 @@ class EventFilterActions extends ConsumerWidget {
     final EventFilter filter = ref.watch(eventFilterProvider);
     final EventFilterNotifier notifier = ref.read(eventFilterProvider.notifier);
     final AsyncValue<List<City>> citiesAsync = ref.watch(citiesProvider);
+    final FiltersConfig config = ref.watch(appConfigProvider).filters;
+
+    // Con los dos filtros apagados no queda nada que mostrar en la fila.
+    if (!config.cityEnabled && !config.dateEnabled) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -25,28 +33,31 @@ class EventFilterActions extends ConsumerWidget {
       ),
       child: Row(
         children: <Widget>[
-          Expanded(
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.location_city_outlined),
-              label: Text(
-                _cityLabel(l10n, filter.cityId, citiesAsync.value),
-                overflow: TextOverflow.ellipsis,
+          if (config.cityEnabled) ...<Widget>[
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.location_city_outlined),
+                label: Text(
+                  _cityLabel(l10n, filter.cityId, citiesAsync.value),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onPressed: citiesAsync.hasValue
+                    ? () => _pickCity(context, notifier, citiesAsync.value!)
+                    : null,
               ),
-              onPressed: citiesAsync.hasValue
-                  ? () => _pickCity(context, notifier, citiesAsync.value!)
-                  : null,
             ),
-          ),
-          const SizedBox(width: UiSpacing.small),
-          OutlinedButton.icon(
-            icon: const Icon(Icons.event_outlined),
-            label: Text(
-              filter.date == null
-                  ? l10n.filter_date
-                  : formatEventDay(filter.date!),
+            const SizedBox(width: UiSpacing.small),
+          ],
+          if (config.dateEnabled)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.event_outlined),
+              label: Text(
+                filter.date == null
+                    ? l10n.filter_date
+                    : formatEventDay(filter.date!),
+              ),
+              onPressed: () => _pickDate(context, notifier, filter),
             ),
-            onPressed: () => _pickDate(context, notifier, filter),
-          ),
           if (!filter.isEmpty)
             IconButton(
               tooltip: l10n.filter_clear,

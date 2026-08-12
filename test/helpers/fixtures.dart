@@ -1,3 +1,9 @@
+import 'package:eventix/features/app_config/domain/entities/app_config.dart';
+import 'package:eventix/features/app_config/domain/entities/brand_config.dart';
+import 'package:eventix/features/app_config/domain/entities/filters_config.dart';
+import 'package:eventix/features/app_config/domain/entities/home_config.dart';
+import 'package:eventix/features/app_config/domain/entities/localized_text.dart';
+import 'package:eventix/features/app_config/domain/entities/onboarding_config.dart';
 import 'package:eventix/features/events/domain/entities/category.dart';
 import 'package:eventix/features/events/domain/entities/city.dart';
 import 'package:eventix/features/events/domain/entities/event.dart';
@@ -61,3 +67,22 @@ const List<City> tCities = <City>[
   City(id: 1, name: 'Bogotá'),
   City(id: 2, name: 'Medellín'),
 ];
+
+/// Configuración de pruebas: por defecto, la que la app trae cableada.
+AppConfig tAppConfig({
+  int version = 1,
+  BrandConfig? brand,
+  OnboardingConfig? onboarding,
+  HomeConfig? home,
+  FiltersConfig? filters,
+}) => AppConfig(
+  version: version,
+  brand: brand ?? BrandConfig.fallback,
+  onboarding: onboarding ?? OnboardingConfig.fallback,
+  home: home ?? HomeConfig.fallback,
+  filters: filters ?? FiltersConfig.fallback,
+);
+
+/// Texto igual en los dos idiomas, que es lo que necesita casi toda prueba.
+LocalizedText tText(String value) =>
+    LocalizedText(<String, String>{'es': value, 'en': value});

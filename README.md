@@ -181,8 +181,8 @@ lib/features/<feature>/
 └── routes/             GoRoute(s) de la feature
 ```
 
-Features: `auth`, `onboarding`, `events`, `reservations`, `payments`,
-`profile`, `splash`.
+Features: `app_config`, `auth`, `onboarding`, `events`, `reservations`,
+`payments`, `profile`, `splash`.
 
 - **DI**: cada feature expone sus dependencias en `di/<feat>_di.dart`, siempre
   contra **interfaces** (DIP), así que todo es override-able en tests.
@@ -195,6 +195,81 @@ Features: `auth`, `onboarding`, `events`, `reservations`, `payments`,
 - **`core/`**: errores (`Failure`/`Result`), helpers (formatos, validators),
   widgets compartidos (`AsyncView`, `AsyncErrorView`, marca), extensiones de
   contexto, tema, router y l10n.
+
+---
+
+## Parametrización por JSON
+
+Parte del contenido y de la presentación sale de
+**`assets/config/app_config.json`**, no del código. Cambiar ese archivo cambia
+la app sin tocar ninguna pantalla.
+
+El reparto con el ARB es deliberado:
+
+- **ARB** (`lib/core/l10n/`) = **idioma**. Botones, validaciones y errores.
+- **JSON** = **decisiones de negocio**. Qué bloques hay y en qué orden, qué
+  banner, qué colores, qué categorías. Los textos que sí lleva son contenido, y
+  van por idioma: `{"es": "…", "en": "…"}`.
+
+### Qué se parametrizó
+
+| Ruta en el JSON | Dónde se ve |
+|---|---|
+| `brand.tagline` | Eslogan del splash |
+| `brand.primaryColor` / `secondaryColor` | Acentos de **toda** la app (`AppTheme.from`) |
+| `onboarding.slides[]` | Onboarding: cuántas láminas hay, con qué icono y texto |
+| `home.blocks[]` | Qué bloques se pintan en el catálogo y en qué orden |
+| `home.banner` | Banner promocional: icono, textos y botón |
+| `home.emptyState` | Mensaje cuando no hay eventos |
+| `filters.cityEnabled` / `dateEnabled` | Muestra u oculta cada filtro |
+| `filters.pinnedCategories` | Categorías que van primero en los chips |
+| `filters.hiddenCategories` | Categorías que no se ofrecen |
+
+### Cómo está armado
+
+`lib/features/app_config/`, misma Clean Architecture que el resto:
+
+- **Se resuelve antes de `runApp`** y entra por un override del `ProviderScope`.
+  El resto de la app la lee **síncrona**: ninguna pantalla maneja un estado de
+  carga por la configuración.
+- **`AppConfig.fallback` en código.** Si el archivo falta, no parsea o trae
+  basura, la app arranca con los valores que tenía cableados. Cada campo se lee
+  con su respaldo (`JsonMap`), así que un JSON mal editado degrada, no revienta.
+- **Iconos por catálogo, no por code point.** El JSON manda `"icon": "explore"`
+  y un `enum AppIcon` lo resuelve; un nombre desconocido cae en el de reserva.
+  Evita compilar con `--no-tree-shake-icons`.
+- **Destinos por enum, no por ruta libre.** El botón del banner apunta a
+  `events` o `reservations`; el archivo no puede mandar la app a una ruta que no
+  existe.
+- **Contraste automático.** El texto sobre los acentos se calcula, así que
+  cambiar el amarillo por un color oscuro no deja los botones ilegibles.
+- **El dominio sigue sin Flutter**: los colores viajan como ARGB y los iconos
+  como enum, ya validados en el mapper.
+
+Cambiar el asset por un origen remoto es sobreescribir un provider:
+
+```dart
+appConfigDatasourceProvider.overrideWithValue(SupabaseAppConfigDatasource(...))
+```
+
+### Cómo comprobarlo
+
+En debug, **mantén pulsado el título "Eventix"** en el catálogo: relee el
+archivo y aplica los cambios sin reiniciar. Tres ediciones que se notan:
+
+```jsonc
+// 1. La marca entera cambia de color
+"brand": { "primaryColor": "#6BF29B", "secondaryColor": "#4B9BF2" }
+
+// 2. El banner debajo de los filtros, o apagado con "enabled": false
+"home": { "blocks": ["filters", "banner", "events"] }
+
+// 3. El catálogo sin filtro de fecha
+"filters": { "dateEnabled": false }
+```
+
+Para el onboarding y el splash, que corren antes del catálogo, hace falta un
+`flutter run` nuevo (o `R`).
 
 ---
 
@@ -278,8 +353,8 @@ flutter test          # unitarias + widget
 
 | | Archivos | Pruebas | Cobertura |
 |---|---|---|---|
-| App | 59 | 328 | **85.4 %** |
-| Paquete `app_ui_kit` | 3 | 46 | **96.2 %** |
+| App | 96 | 623 | **99.6 %** |
+| Paquete `app_ui_kit` | 22 | 148 | **100 %** |
 | Integración | 7 + orquestador | 8 | contra Supabase real |
 
 `flutter_test` + `mocktail`, sin codegen. El criterio no fue cubrir líneas sino
@@ -311,6 +386,9 @@ defectos que las pruebas encontraron y qué queda fuera a propósito.
   archivo por evento. Antes había un degradado por categoría como respaldo,
   pero los assets nunca existieron y ese "respaldo" era el diseño real del
   catálogo; con la URL en la BD el respaldo volvió a ser lo que debía.
+- **JSON de configuración con respaldo en código**: el archivo puede faltar o
+  estar mal editado y la app arranca igual. La alternativa —leerlo con un
+  `FutureProvider`— habría metido un estado de carga en cada pantalla.
 - **Usecases passthrough**: se conservan por convención de la arquitectura del
   equipo; la lógica de negocio real (compra, cupos, post-login) vive en domain.
 - **`app_ui_kit` como repo aparte**: el design system es reutilizable entre

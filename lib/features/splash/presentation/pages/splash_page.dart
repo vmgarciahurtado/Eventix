@@ -1,6 +1,7 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
-import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/extensions/localized_text_extension.dart';
 import 'package:eventix/core/widgets/app_logo.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
 import 'package:eventix/features/auth/domain/enums/post_auth_destination.dart';
 import 'package:eventix/features/auth/routes/post_auth_destination_routing.dart';
@@ -54,7 +55,12 @@ class _SplashPageState extends ConsumerState<SplashPage> {
               const AppLogo(width: _logoWidth),
               const SizedBox(height: UiSpacing.large),
               Text(
-                AppLocalizations.of(context).app_tagline.toUpperCase(),
+                ref
+                    .watch(appConfigProvider)
+                    .brand
+                    .tagline
+                    .of(context)
+                    .toUpperCase(),
                 textAlign: TextAlign.center,
                 style: context.textTheme.labelSmall?.copyWith(
                   color: context.colorScheme.onSurfaceVariant,

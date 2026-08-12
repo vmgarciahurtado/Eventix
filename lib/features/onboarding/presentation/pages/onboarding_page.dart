@@ -1,8 +1,12 @@
 import 'dart:async';
 
 import 'package:app_ui_kit/app_ui_kit.dart';
+import 'package:eventix/core/extensions/localized_text_extension.dart';
 import 'package:eventix/core/extensions/snackbar_extension.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/core/theme/app_icons.dart';
+import 'package:eventix/features/app_config/domain/entities/onboarding_config.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/events/presentation/pages/events_page.dart';
 import 'package:eventix/features/onboarding/presentation/providers/finish_onboarding_provider.dart';
 import 'package:eventix/features/onboarding/presentation/widgets/onboarding_dots.dart';
@@ -45,23 +49,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final List<Widget> slides = <Widget>[
-      OnboardingSlide(
-        icon: Icons.explore_outlined,
-        title: l10n.onboarding_slide1_title,
-        body: l10n.onboarding_slide1_body,
-      ),
-      OnboardingSlide(
-        icon: Icons.filter_alt_outlined,
-        title: l10n.onboarding_slide2_title,
-        body: l10n.onboarding_slide2_body,
-      ),
-      OnboardingSlide(
-        icon: Icons.confirmation_num_outlined,
-        title: l10n.onboarding_slide3_title,
-        body: l10n.onboarding_slide3_body,
-      ),
-    ];
+    // Cuántas láminas hay y qué dicen lo decide el JSON de configuración.
+    final List<OnboardingSlideConfig> slides = ref
+        .watch(appConfigProvider)
+        .onboarding
+        .slides;
     final bool isLast = _index == slides.length - 1;
     final bool finishing = ref.watch(finishOnboardingProvider).isLoading;
 
@@ -93,7 +85,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               child: PageView(
                 controller: _controller,
                 onPageChanged: (int i) => setState(() => _index = i),
-                children: slides,
+                children: <Widget>[
+                  for (final OnboardingSlideConfig slide in slides)
+                    OnboardingSlide(
+                      icon: AppIcons.of(slide.icon),
+                      title: slide.title.of(context),
+                      body: slide.body.of(context),
+                    ),
+                ],
               ),
             ),
             OnboardingDots(count: slides.length, index: _index),

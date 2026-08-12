@@ -1,8 +1,12 @@
 import 'package:eventix/core/env/env.dart';
 import 'package:eventix/core/router/app_router.dart';
+import 'package:eventix/features/app_config/di/app_config_di.dart';
+import 'package:eventix/features/app_config/domain/entities/app_config.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +18,7 @@ import 'test_credentials.dart';
 /// es lo que le va a pasar al usuario.
 
 bool _initialized = false;
+AppConfig _config = AppConfig.fallback;
 
 /// Replica el arranque de `main()`. Idempotente: `main_test.dart` lo llama una
 /// vez, pero correr un archivo suelto no debe romperse por eso.
@@ -31,6 +36,7 @@ Future<void> bootstrapApp() async {
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
   );
+  _config = await loadStartupAppConfig();
   _initialized = true;
 }
 
@@ -39,7 +45,12 @@ Future<void> bootstrapApp() async {
 /// Cada `testWidgets` destruye el árbol al terminar, así que TODA prueba tiene
 /// que montar la app de nuevo: no se hereda la pantalla de la prueba anterior.
 Future<void> launchApp(WidgetTester tester) async {
-  await tester.pumpWidget(const ProviderScope(child: MainApp()));
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: <Override>[appConfigOverride(_config)],
+      child: const MainApp(),
+    ),
+  );
   await settle(tester);
 }
 

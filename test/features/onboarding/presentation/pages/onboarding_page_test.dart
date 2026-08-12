@@ -1,6 +1,10 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/errors/failure.dart';
 import 'package:eventix/core/helpers/result.dart';
+import 'package:eventix/features/app_config/domain/entities/app_config.dart';
+import 'package:eventix/features/app_config/domain/entities/onboarding_config.dart';
+import 'package:eventix/features/app_config/domain/enums/app_icon.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/events/presentation/pages/events_page.dart';
 import 'package:eventix/features/onboarding/di/onboarding_di.dart';
 import 'package:eventix/features/onboarding/domain/usecases/complete_onboarding.dart';
@@ -12,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockCompleteOnboarding extends Mock implements CompleteOnboarding {}
@@ -21,11 +26,13 @@ void main() {
 
   setUp(() => completeOnboarding = _MockCompleteOnboarding());
 
-  Future<void> pumpOnboarding(WidgetTester tester) => pumpRoutes(
+  Future<void> pumpOnboarding(WidgetTester tester, {AppConfig? config}) =>
+      pumpRoutes(
     tester,
     initialLocation: OnboardingPage.routePath,
     overrides: <Override>[
       completeOnboardingProvider.overrideWithValue(completeOnboarding),
+      if (config != null) appConfigOverride(config),
     ],
     routes: <RouteBase>[
       GoRoute(
@@ -94,4 +101,80 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('CATALOGO'), findsOneWidget);
   });
+  group('parametrización', () {
+    testWidgets('el archivo decide cuántas láminas hay', (
+      WidgetTester tester,
+    ) async {
+      await pumpOnboarding(
+        tester,
+        config: tAppConfig(
+          onboarding: OnboardingConfig(
+            slides: <OnboardingSlideConfig>[
+              OnboardingSlideConfig(
+                icon: AppIcon.music,
+                title: tText('Solo una'),
+                body: tText('Y ya está'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      // Con una sola lámina el botón ya es el de terminar.
+      expect(find.byType(OnboardingSlide), findsOneWidget);
+      expect(find.text('Solo una'), findsOneWidget);
+      expect(find.widgetWithText(UiButton, 'Comenzar'), findsOneWidget);
+    });
+
+    testWidgets('agregar una lámina no toca la pantalla', (
+      WidgetTester tester,
+    ) async {
+      await pumpOnboarding(
+        tester,
+        config: tAppConfig(
+          onboarding: OnboardingConfig(
+            slides: <OnboardingSlideConfig>[
+              for (int i = 1; i <= 4; i++)
+                OnboardingSlideConfig(
+                  icon: AppIcon.star,
+                  title: tText('Lámina $i'),
+                  body: tText('Cuerpo $i'),
+                ),
+            ],
+          ),
+        ),
+      );
+
+      for (int i = 1; i <= 3; i++) {
+        expect(find.text('Lámina $i'), findsOneWidget);
+        await tester.tap(find.widgetWithText(UiButton, 'Siguiente'));
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('Lámina 4'), findsOneWidget);
+      expect(find.widgetWithText(UiButton, 'Comenzar'), findsOneWidget);
+    });
+
+    testWidgets('el icono de la lámina sale del catálogo', (
+      WidgetTester tester,
+    ) async {
+      await pumpOnboarding(
+        tester,
+        config: tAppConfig(
+          onboarding: OnboardingConfig(
+            slides: <OnboardingSlideConfig>[
+              OnboardingSlideConfig(
+                icon: AppIcon.music,
+                title: tText('Suena'),
+                body: tText('Duro'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.music_note_outlined), findsOneWidget);
+    });
+  });
+
 }

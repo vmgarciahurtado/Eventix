@@ -1,6 +1,5 @@
 {
   "app_name": "Eventix",
-  "app_tagline": "Your next party starts here",
   "action_retry": "Retry",
   "action_refresh": "Refresh",
   "action_reserve": "Reserve",
@@ -85,8 +84,6 @@
   "filter_clear": "Clear filters",
   "filter_all_cities": "All cities",
   "home_logout": "Sign out",
-  "home_empty_title": "No events",
-  "home_empty_message": "We couldn't find events with these filters.",
   "reservations_title": "My reservations",
   "reservations_empty_title": "You don't have reservations yet",
   "reservations_empty_message": "When you reserve an event it will appear here.",
@@ -108,12 +105,6 @@
   },
   "onboarding_save_error": "We couldn't save your preference: you'll see this intro again next time you enter.",
   "onboarding_skip": "Skip",
-  "onboarding_slide1_title": "Discover events",
-  "onboarding_slide1_body": "Explore concerts, fairs and experiences near you.",
-  "onboarding_slide2_title": "Filter your way",
-  "onboarding_slide2_body": "Find events by category, date or city.",
-  "onboarding_slide3_title": "Reserve your spots",
-  "onboarding_slide3_body": "Set aside your tickets and check your reservations whenever you want.",
   "onboarding_start": "Get started",
   "onboarding_next": "Next",
   "checkout_title": "Secure payment",
@@ -171,5 +162,7 @@
   "confirmed_title_highlight": "confirmed",
   "confirmed_message": "Your spot is waiting. Find the details in My reservations.",
   "confirmed_go_to_reservations": "View my reservations",
-  "confirmed_go_to_events": "Keep exploring"
+  "confirmed_go_to_events": "Keep exploring",
+  "config_reloaded": "Configuration reloaded",
+  "config_reload_error": "We could not reload the configuration"
 }

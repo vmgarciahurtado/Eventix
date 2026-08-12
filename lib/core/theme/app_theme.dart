@@ -1,29 +1,39 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/constants/fonts.dart';
 import 'package:eventix/core/theme/app_palette.dart';
+import 'package:eventix/features/app_config/domain/entities/brand_config.dart';
 import 'package:flutter/material.dart';
 
 /// Tema de Eventix: parte del `UiKitTheme` oscuro y le impone la identidad de
-/// la marca.
+/// la marca. Los dos acentos salen del JSON de configuración; las superficies
+/// oscuras se quedan en [AppPalette] porque son parte del diseño, no de la
+/// parametrización.
 abstract final class AppTheme {
-  static ThemeData get dark {
+  /// Tema con la marca por defecto. Es el que usan las pantallas que corren
+  /// antes de resolver la configuración y las pruebas de widget.
+  static ThemeData get dark => from(BrandConfig.fallback);
+
+  static ThemeData from(BrandConfig brand) {
+    final Color primary = Color(brand.primaryArgb);
+    final Color secondary = Color(brand.secondaryArgb);
+
     final ThemeData base = UiKitTheme.dark(
-      primary: AppPalette.primary,
-      secondary: AppPalette.secondary,
+      primary: primary,
+      secondary: secondary,
       fontFamily: Fonts.poppins,
       headingFontFamily: Fonts.poppins,
-      statusColors: const UiStatusColors(
+      statusColors: UiStatusColors(
         success: AppPalette.success,
         warning: AppPalette.warning,
-        info: AppPalette.secondary,
+        info: secondary,
       ),
     );
 
     final ColorScheme scheme = base.colorScheme.copyWith(
-      primary: AppPalette.primary,
-      onPrimary: Colors.black,
-      secondary: AppPalette.secondary,
-      onSecondary: Colors.black,
+      primary: primary,
+      onPrimary: _readableOn(primary),
+      secondary: secondary,
+      onSecondary: _readableOn(secondary),
       surface: AppPalette.background,
       onSurface: Colors.white,
       surfaceContainerLowest: AppPalette.background,
@@ -78,6 +88,14 @@ abstract final class AppTheme {
       ),
     );
   }
+
+  /// Texto legible sobre un acento cualquiera: sin esto, cambiar el amarillo
+  /// del JSON por un color oscuro dejaría las etiquetas de los botones
+  /// invisibles.
+  static Color _readableOn(Color color) =>
+      ThemeData.estimateBrightnessForColor(color) == Brightness.dark
+      ? Colors.white
+      : Colors.black;
 
   /// Titulares condensados en mayúsculas. El tracking negativo compacta las
   /// palabras para imitar una display condensada sin cargar otra fuente.

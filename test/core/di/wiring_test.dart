@@ -1,4 +1,10 @@
 import 'package:eventix/core/services/supabase/supabase_provider.dart';
+import 'package:eventix/features/app_config/di/app_config_di.dart';
+import 'package:eventix/features/app_config/domain/repositories/app_config_repository.dart';
+import 'package:eventix/features/app_config/domain/usecases/get_app_config.dart';
+import 'package:eventix/features/app_config/domain/usecases/reload_app_config.dart';
+import 'package:eventix/features/app_config/infrastructure/datasources/app_config_datasource.dart';
+import 'package:eventix/features/app_config/infrastructure/datasources/asset_app_config_datasource.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
 import 'package:eventix/features/auth/domain/repositories/auth_repository.dart';
 import 'package:eventix/features/auth/domain/usecases/register_user.dart';
@@ -145,6 +151,27 @@ void main() {
     // StartPurchase cruza features: reservations + payments.
     expect(container.read(startPurchaseProvider), isA<StartPurchase>());
     expect(container.read(completePaymentProvider), isA<CompletePayment>());
+  });
+
+  test('app_config lee del bundle de assets', () {
+    expect(
+      container.read(appConfigDatasourceProvider),
+      isA<AssetAppConfigDatasource>(),
+    );
+    expect(
+      container.read(appConfigRepositoryProvider),
+      isA<AppConfigRepository>(),
+    );
+    expect(container.read(getAppConfigProvider), isA<GetAppConfig>());
+    expect(container.read(reloadAppConfigProvider), isA<ReloadAppConfig>());
+  });
+
+  test('cambiar el origen de la configuración es un solo override', () {
+    // Es lo que haría falta para traerla de un backend en vez del asset.
+    expect(
+      container.read(appConfigDatasourceProvider),
+      isA<AppConfigDatasource>(),
+    );
   });
 
   test('los repositorios se exponen solo como interfaces del dominio', () {

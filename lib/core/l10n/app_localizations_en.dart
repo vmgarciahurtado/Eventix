@@ -12,9 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get app_name => 'Eventix';
 
   @override
-  String get app_tagline => 'Your next party starts here';
-
-  @override
   String get action_retry => 'Retry';
 
   @override
@@ -204,13 +201,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_logout => 'Sign out';
 
   @override
-  String get home_empty_title => 'No events';
-
-  @override
-  String get home_empty_message =>
-      'We couldn\'t find events with these filters.';
-
-  @override
   String get reservations_title => 'My reservations';
 
   @override
@@ -236,26 +226,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_skip => 'Skip';
-
-  @override
-  String get onboarding_slide1_title => 'Discover events';
-
-  @override
-  String get onboarding_slide1_body =>
-      'Explore concerts, fairs and experiences near you.';
-
-  @override
-  String get onboarding_slide2_title => 'Filter your way';
-
-  @override
-  String get onboarding_slide2_body => 'Find events by category, date or city.';
-
-  @override
-  String get onboarding_slide3_title => 'Reserve your spots';
-
-  @override
-  String get onboarding_slide3_body =>
-      'Set aside your tickets and check your reservations whenever you want.';
 
   @override
   String get onboarding_start => 'Get started';
@@ -332,4 +302,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmed_go_to_events => 'Keep exploring';
+
+  @override
+  String get config_reloaded => 'Configuration reloaded';
+
+  @override
+  String get config_reload_error => 'We could not reload the configuration';
 }

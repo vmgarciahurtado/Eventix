@@ -1,6 +1,5 @@
 {
   "app_name": "Eventix",
-  "app_tagline": "Tu próxima fiesta empieza aquí",
   "action_retry": "Reintentar",
   "action_refresh": "Actualizar",
   "action_reserve": "Reservar",
@@ -61,8 +60,6 @@
   "filter_clear": "Limpiar filtros",
   "filter_all_cities": "Todas las ciudades",
   "home_logout": "Cerrar sesión",
-  "home_empty_title": "Sin eventos",
-  "home_empty_message": "No encontramos eventos con estos filtros.",
   "reservations_title": "Mis reservas",
   "reservations_empty_title": "Aún no tienes reservas",
   "reservations_empty_message": "Cuando reserves un evento aparecerá aquí.",
@@ -70,12 +67,6 @@
   "reservation_reserved_on": "Reservado el {date}",
   "onboarding_save_error": "No pudimos guardar tu preferencia: verás esta introducción de nuevo al volver a entrar.",
   "onboarding_skip": "Saltar",
-  "onboarding_slide1_title": "Descubre eventos",
-  "onboarding_slide1_body": "Explora conciertos, ferias y experiencias cerca de ti.",
-  "onboarding_slide2_title": "Filtra a tu medida",
-  "onboarding_slide2_body": "Encuentra eventos por categoría, fecha o ciudad.",
-  "onboarding_slide3_title": "Reserva tus cupos",
-  "onboarding_slide3_body": "Aparta tus entradas y revisa tus reservas cuando quieras.",
   "onboarding_start": "Comenzar",
   "onboarding_next": "Siguiente",
   "checkout_title": "Pago seguro",
@@ -96,5 +87,7 @@
   "confirmed_title_highlight": "confirmado",
   "confirmed_message": "Tu cupo te espera. Encuentra los detalles en Mis reservas.",
   "confirmed_go_to_reservations": "Ver mis reservas",
-  "confirmed_go_to_events": "Seguir explorando"
+  "confirmed_go_to_events": "Seguir explorando",
+  "config_reloaded": "Configuración recargada",
+  "config_reload_error": "No pudimos recargar la configuración"
 }

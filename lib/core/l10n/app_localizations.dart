@@ -104,12 +104,6 @@ abstract class AppLocalizations {
   /// **'Eventix'**
   String get app_name;
 
-  /// No description provided for @app_tagline.
-  ///
-  /// In en, this message translates to:
-  /// **'Your next party starts here'**
-  String get app_tagline;
-
   /// No description provided for @action_retry.
   ///
   /// In en, this message translates to:
@@ -470,18 +464,6 @@ abstract class AppLocalizations {
   /// **'Sign out'**
   String get home_logout;
 
-  /// No description provided for @home_empty_title.
-  ///
-  /// In en, this message translates to:
-  /// **'No events'**
-  String get home_empty_title;
-
-  /// No description provided for @home_empty_message.
-  ///
-  /// In en, this message translates to:
-  /// **'We couldn\'t find events with these filters.'**
-  String get home_empty_message;
-
   /// No description provided for @reservations_title.
   ///
   /// In en, this message translates to:
@@ -523,42 +505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip'**
   String get onboarding_skip;
-
-  /// No description provided for @onboarding_slide1_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Discover events'**
-  String get onboarding_slide1_title;
-
-  /// No description provided for @onboarding_slide1_body.
-  ///
-  /// In en, this message translates to:
-  /// **'Explore concerts, fairs and experiences near you.'**
-  String get onboarding_slide1_body;
-
-  /// No description provided for @onboarding_slide2_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Filter your way'**
-  String get onboarding_slide2_title;
-
-  /// No description provided for @onboarding_slide2_body.
-  ///
-  /// In en, this message translates to:
-  /// **'Find events by category, date or city.'**
-  String get onboarding_slide2_body;
-
-  /// No description provided for @onboarding_slide3_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Reserve your spots'**
-  String get onboarding_slide3_title;
-
-  /// No description provided for @onboarding_slide3_body.
-  ///
-  /// In en, this message translates to:
-  /// **'Set aside your tickets and check your reservations whenever you want.'**
-  String get onboarding_slide3_body;
 
   /// No description provided for @onboarding_start.
   ///
@@ -685,6 +631,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep exploring'**
   String get confirmed_go_to_events;
+
+  /// No description provided for @config_reloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration reloaded'**
+  String get config_reloaded;
+
+  /// No description provided for @config_reload_error.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not reload the configuration'**
+  String get config_reload_error;
 }
 
 class _AppLocalizationsDelegate

@@ -1,9 +1,19 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/errors/failure.dart';
+import 'package:eventix/core/helpers/json_map.dart';
 import 'package:eventix/core/helpers/result.dart';
 import 'package:eventix/core/widgets/app_empty_state.dart';
 import 'package:eventix/core/widgets/app_loading_view.dart';
 import 'package:eventix/core/widgets/async_error_view.dart';
+import 'package:eventix/features/app_config/di/app_config_di.dart';
+import 'package:eventix/features/app_config/domain/entities/app_config.dart';
+import 'package:eventix/features/app_config/domain/entities/banner_config.dart';
+import 'package:eventix/features/app_config/domain/entities/home_config.dart';
+import 'package:eventix/features/app_config/domain/enums/app_icon.dart';
+import 'package:eventix/features/app_config/domain/enums/banner_target.dart';
+import 'package:eventix/features/app_config/domain/enums/home_block.dart';
+import 'package:eventix/features/app_config/infrastructure/datasources/app_config_datasource.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
 import 'package:eventix/features/auth/domain/usecases/sign_out.dart';
 import 'package:eventix/features/auth/presentation/pages/login_page.dart';
@@ -18,6 +28,8 @@ import 'package:eventix/features/events/domain/usecases/get_events.dart';
 import 'package:eventix/features/events/presentation/pages/event_detail_page.dart';
 import 'package:eventix/features/events/presentation/pages/events_page.dart';
 import 'package:eventix/features/events/presentation/widgets/event_card.dart';
+import 'package:eventix/features/events/presentation/widgets/event_filter_bar.dart';
+import 'package:eventix/features/events/presentation/widgets/home_banner.dart';
 import 'package:eventix/features/reservations/presentation/pages/my_reservations_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart';
@@ -35,6 +47,23 @@ class _MockGetCategories extends Mock implements GetCategories {}
 class _MockGetCities extends Mock implements GetCities {}
 
 class _MockSignOut extends Mock implements SignOut {}
+
+/// Archivo de configuración en memoria, para la recarga en caliente.
+class _StubConfigDatasource implements AppConfigDatasource {
+  _StubConfigDatasource(this.json);
+
+  final JsonMap json;
+  bool broken = false;
+
+  @override
+  Future<JsonMap> fetch() async {
+    if (broken) throw const FormatException('json roto');
+    return json;
+  }
+
+  @override
+  Future<void> invalidate() async {}
+}
 
 void main() {
   late _MockGetEvents getEvents;
@@ -60,7 +89,13 @@ void main() {
     );
   });
 
-  List<Override> overrides() => <Override>[
+  List<Override> overrides({
+    AppConfig? config,
+    AppConfigDatasource? configDatasource,
+  }) => <Override>[
+    if (config != null) appConfigOverride(config),
+    if (configDatasource != null)
+      appConfigDatasourceProvider.overrideWithValue(configDatasource),
     getEventsProvider.overrideWithValue(getEvents),
     getCategoriesProvider.overrideWithValue(getCategories),
     getCitiesProvider.overrideWithValue(getCities),
@@ -70,12 +105,15 @@ void main() {
   void mockEvents(Result<List<Event>> result) =>
       when(() => getEvents.call(any())).thenAnswer((_) async => result);
 
-  /// El catálogo navega al detalle, a las reservas y al login: se montan como
-  /// rutas de marca para verificar a dónde fue sin arrastrar esas pantallas.
-  Future<void> pumpCatalog(WidgetTester tester) => pumpRoutes(
+  /// El catálogo navega a tres destinos: se montan como rutas de marca.
+  Future<void> pumpCatalog(
+    WidgetTester tester, {
+    AppConfig? config,
+    AppConfigDatasource? configDatasource,
+  }) => pumpRoutes(
     tester,
     initialLocation: EventsPage.routePath,
-    overrides: overrides(),
+    overrides: overrides(config: config, configDatasource: configDatasource),
     routes: <RouteBase>[
       GoRoute(
         path: EventsPage.routePath,
@@ -121,8 +159,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AppEmptyState), findsOneWidget);
-    expect(find.text('No encontramos eventos con estos filtros.'),
-        findsOneWidget);
+    expect(
+      find.text('No encontramos eventos con estos filtros.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('un fallo muestra el error con su mensaje', (
@@ -305,5 +345,163 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(EventCard), findsOneWidget);
+  });
+  group('parametrización', () {
+    AppConfig withHome({
+      List<HomeBlock> blocks = HomeBlock.fallback,
+      BannerConfig banner = BannerConfig.fallback,
+      EmptyStateConfig emptyState = EmptyStateConfig.fallback,
+    }) => tAppConfig(
+      home: HomeConfig(
+        blocks: blocks,
+        banner: banner,
+        emptyState: emptyState,
+      ),
+    );
+
+    testWidgets('quitar el bloque de filtros los saca de la pantalla', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(Success<List<Event>>(<Event>[tEvent()]));
+
+      await pumpCatalog(
+        tester,
+        config: withHome(blocks: <HomeBlock>[HomeBlock.events]),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(EventFilterBar), findsNothing);
+      expect(find.byType(EventCard), findsOneWidget);
+    });
+
+    testWidgets('el archivo puede poner los filtros debajo de la lista', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(Success<List<Event>>(<Event>[tEvent()]));
+
+      await pumpCatalog(
+        tester,
+        config: withHome(
+          blocks: <HomeBlock>[HomeBlock.events, HomeBlock.filters],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(find.byType(EventFilterBar)).dy,
+        greaterThan(tester.getTopLeft(find.byType(EventCard).first).dy),
+      );
+    });
+
+    testWidgets('con el banner apagado la pantalla no lo pinta', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(Success<List<Event>>(<Event>[tEvent()]));
+
+      await pumpCatalog(tester);
+      await tester.pumpAndSettle();
+
+      expect(find.text('LA NOCHE ES TUYA'), findsNothing);
+    });
+
+    testWidgets('encenderlo en el archivo lo hace aparecer', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(Success<List<Event>>(<Event>[tEvent()]));
+
+      await pumpCatalog(
+        tester,
+        config: withHome(
+          banner: BannerConfig(
+            enabled: true,
+            icon: AppIcon.party,
+            title: tText('La noche es tuya'),
+            subtitle: tText('Cupos limitados'),
+            action: BannerActionConfig(
+              label: tText('Ver mis reservas'),
+              target: BannerTarget.reservations,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HomeBanner), findsOneWidget);
+      expect(find.text('LA NOCHE ES TUYA'), findsOneWidget);
+    });
+
+    testWidgets('el texto del estado vacío sale del archivo', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(const Success<List<Event>>(<Event>[]));
+
+      await pumpCatalog(
+        tester,
+        config: withHome(
+          emptyState: EmptyStateConfig(
+            title: tText('Nada por aquí'),
+            message: tText('Vuelve más tarde.'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppEmptyState), findsOneWidget);
+      expect(find.text('Vuelve más tarde.'), findsOneWidget);
+      expect(
+        find.text('No encontramos eventos con estos filtros.'),
+        findsNothing,
+      );
+    });
+  });
+
+  group('recarga en caliente', () {
+    testWidgets('mantener pulsado el título trae los cambios del archivo', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(const Success<List<Event>>(<Event>[]));
+
+      await pumpCatalog(
+        tester,
+        configDatasource: _StubConfigDatasource(
+          const JsonMap(<String, Object?>{
+            'home': <String, Object?>{
+              'emptyState': <String, Object?>{
+                'message': <String, Object?>{'es': 'Editado en caliente'},
+              },
+            },
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Editado en caliente'), findsNothing);
+
+      await tester.longPress(find.text('Eventix'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Configuración recargada'), findsOneWidget);
+      expect(find.text('Editado en caliente'), findsOneWidget);
+    });
+
+    testWidgets('si el archivo no se puede leer lo dice y no cambia nada', (
+      WidgetTester tester,
+    ) async {
+      mockEvents(const Success<List<Event>>(<Event>[]));
+      final _StubConfigDatasource datasource = _StubConfigDatasource(
+        const JsonMap(<String, Object?>{}),
+      )..broken = true;
+
+      await pumpCatalog(tester, configDatasource: datasource);
+      await tester.pumpAndSettle();
+
+      await tester.longPress(find.text('Eventix'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('No pudimos recargar la configuración'), findsOneWidget);
+      expect(
+        find.text('No encontramos eventos con estos filtros.'),
+        findsOneWidget,
+      );
+    });
   });
 }

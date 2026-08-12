@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 /// [AppTheme], que fija las superficies oscuras porque Material 3 no las
 /// deriva bien a partir de un amarillo saturado.
 abstract final class AppPalette {
-  /// Acento principal: el amarillo del logo. Sobre él va texto negro.
+  /// Acento principal: el amarillo del logo. Es el respaldo de
+  /// `brand.primaryColor` del JSON, que es quien manda en tiempo de ejecución.
   static const Color primary = Color(0xFFF2F04B);
 
-  /// Acento secundario: el magenta del degradado del icono.
+  /// Acento secundario: el magenta del degradado del icono. Respaldo de
+  /// `brand.secondaryColor`.
   static const Color secondary = Color(0xFFE64BC8);
 
   /// Fondo de la app. Negro con un punto de calidez para que no se vea plano.

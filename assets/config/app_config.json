@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "brand": {
+    "tagline": {
+      "es": "Tu próxima fiesta empieza aquí",
+      "en": "Your next party starts here"
+    },
+    "primaryColor": "#F2F04B",
+    "secondaryColor": "#E64BC8"
+  },
+  "onboarding": {
+    "slides": [
+      {
+        "icon": "explore",
+        "title": { "es": "Descubre eventos", "en": "Discover events" },
+        "body": {
+          "es": "Explora conciertos, ferias y experiencias cerca de ti.",
+          "en": "Browse concerts, fairs and experiences near you."
+        }
+      },
+      {
+        "icon": "filter",
+        "title": { "es": "Filtra a tu medida", "en": "Filter your way" },
+        "body": {
+          "es": "Encuentra eventos por categoría, fecha o ciudad.",
+          "en": "Find events by category, date or city."
+        }
+      },
+      {
+        "icon": "ticket",
+        "title": { "es": "Reserva tus cupos", "en": "Book your spots" },
+        "body": {
+          "es": "Aparta tus entradas y revisa tus reservas cuando quieras.",
+          "en": "Grab your tickets and check your bookings anytime."
+        }
+      }
+    ]
+  },
+  "home": {
+    "blocks": ["banner", "filters", "events"],
+    "banner": {
+      "enabled": true,
+      "icon": "party",
+      "title": { "es": "La noche es tuya", "en": "The night is yours" },
+      "subtitle": {
+        "es": "Cupos limitados en los eventos de esta semana.",
+        "en": "Limited spots for this week's events."
+      },
+      "action": {
+        "label": { "es": "Ver mis reservas", "en": "See my bookings" },
+        "target": "reservations"
+      }
+    },
+    "emptyState": {
+      "title": { "es": "Sin eventos", "en": "No events" },
+      "message": {
+        "es": "No encontramos eventos con estos filtros.",
+        "en": "We found no events matching these filters."
+      }
+    }
+  },
+  "filters": {
+    "cityEnabled": true,
+    "dateEnabled": true,
+    "pinnedCategories": ["Conciertos"],
+    "hiddenCategories": []
+  }
+}

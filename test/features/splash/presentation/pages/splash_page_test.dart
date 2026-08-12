@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:eventix/core/widgets/app_logo.dart';
+import 'package:eventix/features/app_config/domain/entities/app_config.dart';
+import 'package:eventix/features/app_config/domain/entities/brand_config.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/auth/di/auth_di.dart';
 import 'package:eventix/features/auth/domain/enums/post_auth_destination.dart';
 import 'package:eventix/features/auth/domain/usecases/resolve_post_auth_destination.dart';
@@ -14,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 class _MockResolvePostAuthDestination extends Mock
@@ -24,11 +28,13 @@ void main() {
 
   setUp(() => resolveDestination = _MockResolvePostAuthDestination());
 
-  Future<void> pumpSplash(WidgetTester tester) => pumpRoutes(
+  Future<void> pumpSplash(WidgetTester tester, {AppConfig? config}) =>
+      pumpRoutes(
     tester,
     initialLocation: SplashPage.routePath,
     overrides: <Override>[
       resolvePostAuthDestinationProvider.overrideWithValue(resolveDestination),
+      if (config != null) appConfigOverride(config),
     ],
     routes: <RouteBase>[
       GoRoute(
@@ -108,4 +114,28 @@ void main() {
 
     expect(find.text('CATALOGO'), findsOneWidget);
   });
+  testWidgets('el eslogan sale del JSON, no del ARB', (
+    WidgetTester tester,
+  ) async {
+    when(
+      resolveDestination.call,
+    ).thenAnswer((_) async => PostAuthDestination.login);
+
+    await pumpSplash(
+      tester,
+      config: tAppConfig(
+        brand: BrandConfig(
+          tagline: tText('Otra promesa'),
+          primaryArgb: BrandConfig.fallback.primaryArgb,
+          secondaryArgb: BrandConfig.fallback.secondaryArgb,
+        ),
+      ),
+    );
+
+    expect(find.text('OTRA PROMESA'), findsOneWidget);
+    expect(find.text('TU PRÓXIMA FIESTA EMPIEZA AQUÍ'), findsNothing);
+
+    await tester.pumpAndSettle();
+  });
+
 }

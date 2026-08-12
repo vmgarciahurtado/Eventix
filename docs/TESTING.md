@@ -4,9 +4,9 @@ Qué se probó, por qué eso y no otra cosa, y qué queda deliberadamente fuera.
 
 | | Archivos | Pruebas | Cobertura |
 |---|---|---|---|
-| **App** (`test/`) | 59 | 328 | **85.4 %** |
-| **Paquete `app_ui_kit`** (`test/`) | 3 | 46 | **96.2 %** |
-| **Integración** (`integration_test/`) | 7 + orquestador | 8 | contra Supabase real |
+| App (`test/`) | 96 | 623 | **99.6 %** |
+| Paquete `app_ui_kit` | 22 | 148 | **100 %** |
+| Integración (`integration_test/`) | 7 + orquestador | 8 | contra Supabase real |
 
 ## Cómo correr
 
@@ -123,20 +123,27 @@ contarla mide al generador.
 `test/` refleja `lib/` archivo por archivo. Lo compartido vive en
 `test/helpers/`:
 
-- **`pump_app.dart`** — `pumpPage` (páginas, que traen su `Scaffold`),
-  `pumpComponent` (componentes sueltos) y `pumpRoutes` (lo que navega, con un
-  `GoRouter` real). Los tres montan el tema propio y el locale `es` reales: si el
-  entorno del test no fuera el de la app, una prueba en verde no diría nada.
-- **`fixtures.dart`** — datos con la forma que de verdad llega del backend.
-- **`test_container.dart`** — `testContainer()` apaga los reintentos de Riverpod
-  y `keepAlive()` sostiene el provider, que en Riverpod 3 es `autoDispose` por
-  defecto y se recicla antes de que la prueba lea el resultado.
+| Archivo | Para qué |
+|---|---|
+| `pump_app.dart` | `pumpPage`, `pumpComponent` y `pumpRoutes` con el tema y el locale reales |
+| `fixtures.dart` | Datos de prueba |
+| `test_container.dart` | `ProviderContainer` sin reintentos y `keepAlive()` |
+| `fake_supabase.dart` | `SupabaseClient` real sobre un transporte falso |
+| `fake_webview.dart` | `WebViewPlatform` de prueba para el checkout |
+| `fake_asset_bundle.dart` | `AssetBundle` en memoria para el JSON de configuración |
 
 Las de integración siguen la misma idea: un archivo por tramo del flujo y
 `main_test.dart` como único punto de entrada, que inicializa Supabase una vez y
 llama a los demás en el orden del usuario.
 
-Dos reglas que no son obvias y que ya costaron una corrección:
+## Configuración por JSON
+
+`test/features/app_config/app_config_asset_test.dart` valida el archivo que se
+publica: que parse, que los iconos, bloques y destinos que nombra existan en el
+código y que todo texto traiga los dos idiomas. Si alguien lo edita mal, falla
+ahí y no en el dispositivo.
+
+## Fuera de alcance
 
 - **Cada prueba monta la app.** `testWidgets` destruye el árbol de widgets al
   terminar, así que no se hereda la pantalla de la prueba anterior. Por eso

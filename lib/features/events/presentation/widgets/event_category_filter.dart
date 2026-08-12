@@ -1,5 +1,7 @@
 import 'package:app_ui_kit/app_ui_kit.dart';
 import 'package:eventix/core/l10n/app_localizations.dart';
+import 'package:eventix/features/app_config/domain/entities/filters_config.dart';
+import 'package:eventix/features/app_config/presentation/providers/app_config_provider.dart';
 import 'package:eventix/features/events/domain/entities/category.dart';
 import 'package:eventix/features/events/domain/entities/event_filter.dart';
 import 'package:eventix/features/events/presentation/providers/categories_provider.dart';
@@ -20,11 +22,12 @@ class EventCategoryFilter extends ConsumerWidget {
     final AsyncValue<List<Category>> categoriesAsync = ref.watch(
       categoriesProvider,
     );
+    final FiltersConfig config = ref.watch(appConfigProvider).filters;
 
     return SizedBox(
       height: _height,
       child: categoriesAsync.maybeWhen(
-        data: (List<Category> categories) => ListView(
+        data: (List<Category> remote) => ListView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: UiSpacing.medium),
           children: <Widget>[
@@ -33,7 +36,7 @@ class EventCategoryFilter extends ConsumerWidget {
               selected: filter.categoryId == null,
               onSelected: () => notifier.setCategory(null),
             ),
-            for (final Category c in categories)
+            for (final Category c in _arrange(remote, config))
               Padding(
                 padding: const EdgeInsets.only(left: UiSpacing.small),
                 child: _CategoryChip(
@@ -49,6 +52,21 @@ class EventCategoryFilter extends ConsumerWidget {
         orElse: () => const SizedBox.shrink(),
       ),
     );
+  }
+
+  /// Quita las categorías que el JSON oculta y sube las que fija, en el orden
+  /// del archivo. El resto conserva el orden del backend.
+  List<Category> _arrange(List<Category> remote, FiltersConfig config) {
+    final List<Category> rest = <Category>[
+      for (final Category c in remote)
+        if (!config.hiddenCategories.contains(c.name)) c,
+    ];
+    final List<Category> pinned = <Category>[];
+    for (final String name in config.pinnedCategories) {
+      final int index = rest.indexWhere((Category c) => c.name == name);
+      if (index != -1) pinned.add(rest.removeAt(index));
+    }
+    return <Category>[...pinned, ...rest];
   }
 }
 
