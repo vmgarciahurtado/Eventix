@@ -53,7 +53,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: main
+      ref: "v1.2.0"
       resolved-ref: "97ba11425061d26f6e0711408744e5ef4e51a743"
       url: "https://github.com/vmgarciahurtado/app_ui_kit.git"
     source: git
